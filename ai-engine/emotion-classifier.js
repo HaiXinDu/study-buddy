@@ -178,7 +178,8 @@ class EmotionClassifier {
         ...dictResult,
         source: 'dictionary_priority',
         confidence: 0.95,
-        probabilities: this.loaded ? this.predictWithModel(text)?.probabilities : null
+        probabilities: this.loaded ? this.predictWithModel(text)?.probabilities : null,
+        intensity: this._computeIntensity('crisis', dictResult.matchedWords.length, 0.95)
       };
     }
 
@@ -186,58 +187,68 @@ class EmotionClassifier {
     const modelResult = this.predictWithModel(text);
 
     if (!modelResult) {
+      const conf = dictResult.matchCount ? Math.min(0.7, 0.3 + dictResult.matchCount * 0.1) : 0.5;
       return {
         ...dictResult,
         source: 'dictionary_fallback',
-        confidence: dictResult.matchCount ? Math.min(0.7, 0.3 + dictResult.matchCount * 0.1) : 0.5
+        confidence: conf,
+        intensity: this._computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
       };
     }
 
     // 第三层：决策融合
     if (dictResult.emotion === modelResult.emotion) {
+      const conf = Math.min(0.98, modelResult.confidence + 0.1);
       return {
         emotion: modelResult.emotion,
         severity: dictResult.severity,
         label: dictResult.label,
         color: dictResult.color,
         action: dictResult.action,
-        confidence: Math.min(0.98, modelResult.confidence + 0.1),
+        confidence: conf,
         probabilities: modelResult.probabilities,
         source: 'fusion_agree',
-        matchedWords: dictResult.matchedWords
+        matchedWords: dictResult.matchedWords,
+        intensity: this._computeIntensity(modelResult.emotion, dictResult.matchedWords.length, conf)
       };
     }
 
     // 高严重度（depressed/crisis）只需1个关键词匹配即优先词典
     if (dictResult.severity >= 4 && dictResult.matchedWords.length >= 1) {
+      const conf = Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.1);
       return {
         ...dictResult,
-        confidence: Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.1),
+        confidence: conf,
         probabilities: modelResult.probabilities,
         source: 'dictionary_priority',
-        modelEmotion: modelResult.emotion
+        modelEmotion: modelResult.emotion,
+        intensity: this._computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
       };
     }
 
     // 愤怒情绪：模型未训练此类别，词典匹配1个即优先
     if (dictResult.emotion === 'angry' && dictResult.matchedWords.length >= 1) {
+      const conf = Math.min(0.8, 0.55 + dictResult.matchedWords.length * 0.08);
       return {
         ...dictResult,
-        confidence: Math.min(0.8, 0.55 + dictResult.matchedWords.length * 0.08),
+        confidence: conf,
         probabilities: modelResult.probabilities,
         source: 'dictionary_priority',
-        modelEmotion: modelResult.emotion
+        modelEmotion: modelResult.emotion,
+        intensity: this._computeIntensity('angry', dictResult.matchedWords.length, conf)
       };
     }
 
     // 中等严重度（anxious/stressed）需至少2个关键词
     if (dictResult.severity >= 3 && dictResult.matchedWords.length >= 2) {
+      const conf = Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.05);
       return {
         ...dictResult,
-        confidence: Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.05),
+        confidence: conf,
         probabilities: modelResult.probabilities,
         source: 'dictionary_priority',
-        modelEmotion: modelResult.emotion
+        modelEmotion: modelResult.emotion,
+        intensity: this._computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
       };
     }
 
@@ -251,8 +262,71 @@ class EmotionClassifier {
       confidence: modelResult.confidence,
       probabilities: modelResult.probabilities,
       source: 'model',
-      matchedWords: dictResult.matchedWords
+      matchedWords: dictResult.matchedWords,
+      intensity: this._computeIntensity(modelResult.emotion, dictResult.matchedWords.length, modelResult.confidence)
     };
+  }
+
+  /**
+   * 计算情绪强度 (0-100)
+   * 基础分 = 词典匹配词数 × 15 + 模型置信度 × 50
+   * crisis 至少 80；depressed/angry（匹配到时）至少 50；neutral 固定 20；上限 100，下限 10
+   * @param {string} emotion - 情绪类别
+   * @param {number} matchCount - 词典匹配词数
+   * @param {number} confidence - 模型置信度 (0-1)
+   * @returns {number} intensity (10-100)
+   */
+  _computeIntensity(emotion, matchCount, confidence) {
+    if (emotion === 'neutral') return 20;
+    let intensity = matchCount * 15 + (confidence || 0) * 50;
+    if (emotion === 'crisis') {
+      intensity = Math.max(intensity, 80);
+    }
+    if ((emotion === 'depressed' || emotion === 'angry') && matchCount > 0) {
+      intensity = Math.max(intensity, 50);
+    }
+    return Math.max(10, Math.min(100, Math.round(intensity)));
+  }
+
+  /**
+   * 基于过去7天情绪记录预测明天情绪趋势
+   * @param {Array} records - EmotionTracker 的记录数组
+   * @returns {Object} { predictedEmotion, confidence, trendDirection }
+   */
+  predictTrend(records) {
+    if (!records || records.length < 3) {
+      return { predictedEmotion: 'neutral', confidence: 0, trendDirection: 'insufficient_data' };
+    }
+
+    // 按日期分组，取每天最后一条
+    const byDate = {};
+    records.forEach(r => { byDate[r.date] = r; });
+    const recentDates = Object.keys(byDate).sort().slice(-7);
+    const recent = recentDates.map(d => byDate[d]);
+
+    // 情绪分数映射
+    const scoreMap = { crisis: 0, depressed: 1, angry: 2, anxious: 2, stressed: 2, neutral: 3, positive: 4, happy: 5 };
+
+    // 简单线性回归预测
+    const scores = recent.map(r => scoreMap[r.emotion] || 3);
+    const n = scores.length;
+    const sumX = scores.reduce((s, _, i) => s + i, 0);
+    const sumY = scores.reduce((s, v) => s + v, 0);
+    const sumXY = scores.reduce((s, v, i) => s + i * v, 0);
+    const sumX2 = scores.reduce((s, _, i) => s + i * i, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX || 1);
+    const intercept = (sumY - slope * sumX) / n;
+    const predictedScore = slope * n + intercept;
+
+    // 反向映射
+    const reverseMap = { 0: 'crisis', 1: 'depressed', 2: 'stressed', 3: 'neutral', 4: 'positive', 5: 'happy' };
+    const clampedScore = Math.max(0, Math.min(5, predictedScore));
+    const predictedEmotion = reverseMap[Math.round(clampedScore)] || 'neutral';
+
+    const trendDirection = slope > 0.1 ? 'improving' : slope < -0.1 ? 'declining' : 'stable';
+    const confidence = Math.min(0.9, Math.max(0.3, 0.5 + Math.abs(slope) * 0.3));
+
+    return { predictedEmotion, confidence, trendDirection, slope };
   }
 }
 

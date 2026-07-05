@@ -390,13 +390,82 @@ function generateReply(emotion, userContext = {}, userText = '') {
     .sort(() => Math.random() - 0.5)
     .slice(0, 3);
 
+  /**
+   * 根据聊天历史生成上下文感知的回复增强
+   * - 3 条消息内重复提到同一学科：加入学科困扰关怀
+   * - 情绪从负面转为正面：加入心情好转肯定
+   * - 连续 3 条同一负面情绪：加入持续情绪关怀
+   * - 提到考试/测验且情绪 anxious：加入考试压力共情
+   * @param {string} emotion - 当前情绪
+   * @param {string} userInput - 用户原始输入
+   * @param {Array} chatHistory - 聊天历史
+   * @returns {string} - 上下文感知的额外关怀语，无上下文信息时为空字符串
+   */
+  function buildContextualReply(emotion, userInput, chatHistory) {
+    if (!chatHistory || chatHistory.length === 0) return '';
+
+    const notes = [];
+    const recentMsgs = chatHistory.slice(-5);
+
+    // 1. 学科重复检测：3 条消息内重复提到同一学科
+    const subjects = ['数学', '语文', '英语', '物理', '化学', '生物', '历史', '地理', '政治'];
+    const subjectCounts = {};
+    recentMsgs.forEach(msg => {
+      if (msg.role !== 'user') return;
+      subjects.forEach(subj => {
+        if (msg.text && msg.text.includes(subj)) {
+          subjectCounts[subj] = (subjectCounts[subj] || 0) + 1;
+        }
+      });
+    });
+    for (const [subj, count] of Object.entries(subjectCounts)) {
+      if (count >= 2) {
+        notes.push(`我注意到你最近几次都提到了${subj}，是不是${subj}让你特别困扰？`);
+        break;
+      }
+    }
+
+    // 2. 情绪转变检测：从负面转为正面
+    const emotions = recentMsgs.filter(m => m.emotion).map(m => m.emotion);
+    if (emotions.length >= 2) {
+      const last = emotions[emotions.length - 1];
+      const prev = emotions[emotions.length - 2];
+      const negativeSet = ['depressed', 'anxious', 'stressed', 'crisis', 'angry'];
+      if (negativeSet.includes(prev) && (emotion === 'happy' || emotion === 'positive')) {
+        notes.push('看到你心情好转了，真为你高兴！');
+      }
+    }
+
+    // 3. 连续 3 条同一负面情绪
+    if (emotions.length >= 3) {
+      const last3 = emotions.slice(-3);
+      if (last3.every(e => e === emotion) && ['depressed', 'anxious', 'stressed'].includes(emotion)) {
+        const labels = { depressed: '低落', anxious: '焦虑', stressed: '压力大' };
+        notes.push(`我注意到你最近一直在感到${labels[emotion] || emotion}，这一定不容易。`);
+      }
+    }
+
+    // 4. 考试/测验 + 焦虑
+    if (userInput && emotion === 'anxious') {
+      if (/考试|测验|月考|期末|模考/.test(userInput)) {
+        notes.push('考试压力确实很大，但你有能力应对。');
+      }
+    }
+
+    return notes.join(' ');
+  }
+
+  // 生成上下文感知备注
+  const contextNote = buildContextualReply(emotion, userText, userContext.chatHistory || []);
+
   return {
     mainReply: selectedResponse.text,
     followUp: selectedResponse.followUp,
     suggestions: shuffledSuggestions,
     tone: template.tone,
     urgency: template.urgency,
-    emotionLabel: template.responses[randomIndex].text
+    emotionLabel: template.responses[randomIndex].text,
+    contextNote: contextNote
   };
 }
 
