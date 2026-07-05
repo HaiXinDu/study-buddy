@@ -106,7 +106,7 @@
       flex-shrink: 0;
     }
 
-    .header-title-group { display: flex; flex-direction: column; }
+    .header-title-group { display: flex; flex-direction: column; flex-shrink: 0; }
 
     .header-title {
       font-size: 18px;
@@ -115,6 +115,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      white-space: nowrap;
     }
 
     .header-subtitle {
@@ -1246,8 +1247,9 @@
       .header { padding: 0 12px; }
       .header-subtitle { display: none; }
       .main-content { padding: 12px; }
-      .tab-btn { padding: 8px 12px; font-size: 12px; }
+      .tab-btn { padding: 6px 8px; font-size: 12px; }
       .tab-btn .tab-text { display: none; }
+      .tab-btn .tab-icon { font-size: 18px; }
       .message { max-width: 95%; }
       .plan-overview { grid-template-columns: 1fr; }
       .achievement-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1944,19 +1946,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=13"></script>
-  <script src="ai-engine/reply-templates.js?v=13"></script>
-  <script src="ai-engine/emotion-classifier.js?v=13"></script>
-  <script src="ai-engine/study-planner.js?v=13"></script>
-  <script src="ai-engine/emotion-tracker.js?v=13"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=14"></script>
+  <script src="ai-engine/reply-templates.js?v=14"></script>
+  <script src="ai-engine/emotion-classifier.js?v=14"></script>
+  <script src="ai-engine/study-planner.js?v=14"></script>
+  <script src="ai-engine/emotion-tracker.js?v=14"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=13"></script>
-  <script src="ai-engine/proactive-care.js?v=13"></script>
-  <script src="ai-engine/mood-card.js?v=13"></script>
+  <script src="ai-engine/achievement.js?v=14"></script>
+  <script src="ai-engine/proactive-care.js?v=14"></script>
+  <script src="ai-engine/mood-card.js?v=14"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=13"></script>
-  <script src="ai-engine/word-analyzer.js?v=13"></script>
-  <script src="ai-engine/weekly-report.js?v=13"></script>
+  <script src="ai-engine/study-advisor.js?v=14"></script>
+  <script src="ai-engine/word-analyzer.js?v=14"></script>
+  <script src="ai-engine/weekly-report.js?v=14"></script>
 
   <script>
     // ================================================================
@@ -2451,7 +2453,8 @@
                 appendMessage('user', s.text, new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
                 setTimeout(() => {
                   addAIPlainMessage(tipReply);
-                  EmotionTracker.addRecord(appState.currentEmotion || 'positive', s.text, 0.9, 'checkin');
+                  const emoStr = (appState.currentEmotion && typeof appState.currentEmotion === 'object') ? (appState.currentEmotion.emotion || 'positive') : (appState.currentEmotion || 'positive');
+                  EmotionTracker.addRecord(emoStr, s.text, 0.9, 'checkin');
                   AchievementSystem.check('emotion_checkin');
                 }, 400);
               });
@@ -2734,8 +2737,9 @@
           recentEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px;">还没有情绪记录，去聊天或打卡吧</p>';
         } else {
           recentEl.innerHTML = records.map(r => {
-            const label = emotionLabels[r.emotion] || r.emotion;
-            const color = emotionColors[r.emotion] || '#9CA3AF';
+            const emoKey = (typeof r.emotion === 'object' && r.emotion !== null) ? (r.emotion.emotion || 'neutral') : r.emotion;
+            const label = emotionLabels[emoKey] || emoKey || '未知';
+            const color = emotionColors[emoKey] || '#9CA3AF';
             const time = r.date ? r.date.slice(5) : '';
             const sourceTag = r.source === 'chat' ? '💬' : r.source === 'checkin' ? '✅' : '✏️';
             return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-color,#f0f0f0);">
@@ -2782,7 +2786,10 @@
       if (!container) return;
       const records = EmotionTracker.getAllRecords();
       const byDate = {};
-      records.forEach(r => { byDate[r.date] = r.emotion; });
+      records.forEach(r => {
+        const emoKey = (typeof r.emotion === 'object' && r.emotion !== null) ? (r.emotion.emotion || 'neutral') : r.emotion;
+        byDate[r.date] = emoKey;
+      });
 
       const emotionColors = {
         crisis: '#E8463A', depressed: '#F87454', angry: '#FF6B35',
@@ -3014,7 +3021,7 @@
         };
         return [
           r.date,
-          emotionLabels[r.emotion] || r.emotion,
+          emotionLabels[(typeof r.emotion === 'object' && r.emotion !== null) ? (r.emotion.emotion || 'neutral') : r.emotion] || ((typeof r.emotion === 'object' && r.emotion !== null) ? (r.emotion.emotion || 'neutral') : r.emotion),
           `"${(r.text || '').replace(/"/g, '""')}"`,
           (r.confidence || 0).toFixed(2)
         ].join(',');
@@ -3653,4 +3660,5 @@
   </script>
 </body>
 </html>
+
 

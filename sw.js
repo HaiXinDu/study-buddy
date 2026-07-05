@@ -1,8 +1,8 @@
-// 学伴小管家 - Service Worker
+﻿// 学伴小管家 - Service Worker
 // 缓存策略: Cache First（优先缓存，回退网络）
 
 // 缓存版本名称
-const CACHE_NAME = 'studybuddy-v8';
+const CACHE_NAME = 'studybuddy-v9';
 
 // 需要预缓存的文件列表
 const PRECACHE_FILES = [
@@ -94,3 +94,4 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+

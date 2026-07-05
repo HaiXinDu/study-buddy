@@ -63,7 +63,14 @@ const EmotionTracker = {
    */
   getAllRecords() {
     try {
-      return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+      const records = JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+      // 数据清洗：兼容旧版存储的对象类型 emotion
+      records.forEach(r => {
+        if (r.emotion && typeof r.emotion === 'object') {
+          r.emotion = r.emotion.emotion || r.emotion.label || 'neutral';
+        }
+      });
+      return records;
     } catch {
       return [];
     }
