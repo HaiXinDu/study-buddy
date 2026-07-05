@@ -484,6 +484,83 @@ function generatePersonalizedReply(emotion, chatHistory = []) {
       break;
     }
   }
+
+  // ========== 意图识别：功能性指令优先于情绪回复 ==========
+  const intentPatterns = [
+    {
+      pattern: /生成.*计划|制定.*计划|学习计划|做.*计划|帮我.*规划|安排.*学习|复习.*计划/,
+      reply: {
+        mainReply: '制定学习计划需要一些信息，请切换到「学习规划」页面，告诉我你要考什么科目、还有多少天、目前进度，我会帮你生成一份科学的每日学习计划。',
+        followUp: '点击底部导航栏的「📖 学习规划」就可以开始了！',
+        suggestions: ['合理安排时间，效率翻倍'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    },
+    {
+      pattern: /打卡|心情|情绪记录|记录.*心情/,
+      reply: {
+        mainReply: '记录心情是了解自己的第一步。切换到「📊 情绪趋势」页面，点击对应的心情按钮就可以快速打卡。',
+        followUp: '坚持打卡可以帮你发现情绪变化的规律哦！',
+        suggestions: ['坚持记录，看见自己'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    },
+    {
+      pattern: /番茄|计时|专注|开始.*学习|进入.*状态/,
+      reply: {
+        mainReply: '专注学习可以试试番茄工作法。切换到「🧘 减压资源」页面，那里有番茄计时器，帮你保持高效学习状态。',
+        followUp: '25分钟专注 + 5分钟休息，科学节奏效率最高！',
+        suggestions: ['专注是最好的学习技巧'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    },
+    {
+      pattern: /放松|减压|呼吸|减压|放松.*练习|紧张.*缓解/,
+      reply: {
+        mainReply: '感觉有压力的时候，试试「🧘 减压资源」里的呼吸练习，4-7-8 呼吸法能快速帮你平静下来。',
+        followUp: '吸气4秒 → 屏气7秒 → 呼气8秒，重复3-5次就有明显效果。',
+        suggestions: ['深呼吸，让身体和大脑都放松'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    },
+    {
+      pattern: /周报|报告|总结|统计|分析.*数据/,
+      reply: {
+        mainReply: '想看看这一周的情绪和学习情况？切换到「📊 情绪趋势」页面，点击「📊 本周报告」按钮就能生成周报。',
+        followUp: '周报里还有学习建议和情绪触发词分析，帮你更好地了解自己。',
+        suggestions: ['定期回顾，持续进步'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    },
+    {
+      pattern: /测试|准确.*率|识别.*准|测.*情绪/,
+      reply: {
+        mainReply: '想测试情绪识别的准确率？在聊天页面的侧边栏点击「🧪 体验情绪识别」按钮，可以看到 8 条测试用例的结果。',
+        followUp: '如果发现识别不准，可以点击「识别不准？」按钮手动纠正，这能帮助模型学习。',
+        suggestions: ['你的反馈让AI更懂你'],
+        tone: 'helpful',
+        intentDetected: true
+      }
+    }
+  ];
+
+  if (lastUserText) {
+    for (const intent of intentPatterns) {
+      if (intent.pattern.test(lastUserText)) {
+        const contextNote = '💡 检测到功能请求';
+        const result = intent.reply;
+        if (contextNote) result.contextNote = contextNote;
+        return result;
+      }
+    }
+  }
+
+  // ========== 常规情绪回复 ==========
   const baseReply = generateReply(emotion, {}, lastUserText);
 
   // 如果连续多次情绪低落，增加关怀强度
