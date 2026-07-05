@@ -328,6 +328,47 @@ class EmotionClassifier {
 
     return { predictedEmotion, confidence, trendDirection, slope };
   }
+
+  /**
+   * 异步分类（通过 Web Worker，不阻塞主线程）
+   * 如果 Worker 不可用或文本较短，回退到同步 classify()
+   */
+  classifyAsync(text) {
+    // 短文本直接同步处理，避免 Worker 通信开销
+    if (!text || text.length <= 12) {
+      return Promise.resolve(this.classify(text));
+    }
+    // 词典有强匹配时直接同步处理
+    const quickDict = detectEmotionByDictionary(text);
+    if (quickDict.emotion === 'crisis' || (quickDict.severity >= 4 && quickDict.matchedWords.length >= 1)) {
+      return Promise.resolve(this.classify(text));
+    }
+    // 尝试通过 Worker 异步处理
+    if (window.__emotionWorker) {
+      return new Promise((resolve, reject) => {
+        const id = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        const handler = (e) => {
+          if (e.data.id !== id) return;
+          window.__emotionWorker.removeEventListener('message', handler);
+          if (e.data.type === 'result') {
+            resolve(e.data.result);
+          } else {
+            // Worker 出错，回退到主线程
+            resolve(this.classify(text));
+          }
+        };
+        window.__emotionWorker.addEventListener('message', handler);
+        // 3秒超时保护
+        setTimeout(() => {
+          window.__emotionWorker.removeEventListener('message', handler);
+          resolve(this.classify(text));
+        }, 3000);
+        window.__emotionWorker.postMessage({ type: 'classify', text, id });
+      });
+    }
+    // Worker 不可用，回退同步
+    return Promise.resolve(this.classify(text));
+  }
 }
 
 // 全局分类器实例
@@ -336,5 +377,38 @@ let emotionClassifier = null;
 async function initEmotionClassifier() {
   emotionClassifier = new EmotionClassifier();
   await emotionClassifier.loadModel();
+
+  // 初始化 Web Worker（异步推理，不阻塞 UI）
+  if (typeof Worker !== 'undefined') {
+    try {
+      const worker = new Worker('ai-engine/emotion-worker.js');
+      worker.postMessage({
+        type: 'init',
+        model: emotionClassifier.model,
+        words: Array.from(emotionClassifier.wordSet)
+      });
+      await new Promise((resolve, reject) => {
+        const handler = (e) => {
+          if (e.data.type === 'init_ok') {
+            worker.removeEventListener('message', handler);
+            window.__emotionWorker = worker;
+            console.log('[Worker] 情绪识别 Worker 初始化成功');
+            resolve();
+          } else if (e.data.type === 'error') {
+            worker.removeEventListener('message', handler);
+            reject(e.data.error);
+          }
+        };
+        worker.addEventListener('message', handler);
+        setTimeout(() => {
+          worker.removeEventListener('message', handler);
+          reject('Worker init timeout');
+        }, 5000);
+      });
+    } catch (e) {
+      console.warn('[Worker] Worker 初始化失败，回退到主线程:', e);
+    }
+  }
+
   return emotionClassifier;
 }

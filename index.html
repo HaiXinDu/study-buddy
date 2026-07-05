@@ -1946,19 +1946,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=14"></script>
-  <script src="ai-engine/reply-templates.js?v=14"></script>
-  <script src="ai-engine/emotion-classifier.js?v=14"></script>
-  <script src="ai-engine/study-planner.js?v=14"></script>
-  <script src="ai-engine/emotion-tracker.js?v=14"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=15"></script>
+  <script src="ai-engine/reply-templates.js?v=15"></script>
+  <script src="ai-engine/emotion-classifier.js?v=15"></script>
+  <script src="ai-engine/study-planner.js?v=15"></script>
+  <script src="ai-engine/emotion-tracker.js?v=15"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=14"></script>
-  <script src="ai-engine/proactive-care.js?v=14"></script>
-  <script src="ai-engine/mood-card.js?v=14"></script>
+  <script src="ai-engine/achievement.js?v=15"></script>
+  <script src="ai-engine/proactive-care.js?v=15"></script>
+  <script src="ai-engine/mood-card.js?v=15"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=14"></script>
-  <script src="ai-engine/word-analyzer.js?v=14"></script>
-  <script src="ai-engine/weekly-report.js?v=14"></script>
+  <script src="ai-engine/study-advisor.js?v=15"></script>
+  <script src="ai-engine/word-analyzer.js?v=15"></script>
+  <script src="ai-engine/weekly-report.js?v=15"></script>
 
   <script>
     // ================================================================
@@ -2353,9 +2353,9 @@
         input.value = '';
         input.style.height = 'auto';
 
-        // 优化6: 检测连续情绪上下文
+        // 优化6: 检测连续情绪上下文（长文本使用 Worker 异步推理，不阻塞 UI）
         const emotionResult = emotionClassifier
-          ? emotionClassifier.classify(text)
+          ? await emotionClassifier.classifyAsync(text)
           : detectEmotionByDictionary(text);
 
         appState.currentEmotion = emotionResult;
@@ -3660,5 +3660,6 @@
   </script>
 </body>
 </html>
+
 
 

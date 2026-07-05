@@ -2,7 +2,7 @@
 // 缓存策略: Cache First（优先缓存，回退网络）
 
 // 缓存版本名称
-const CACHE_NAME = 'studybuddy-v9';
+const CACHE_NAME = 'studybuddy-v10';
 
 // 需要预缓存的文件列表
 const PRECACHE_FILES = [
@@ -20,6 +20,7 @@ const PRECACHE_FILES = [
   './ai-engine/study-advisor.js',
   './ai-engine/word-analyzer.js',
   './ai-engine/weekly-report.js',
+  './ai-engine/emotion-worker.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4'
 ];
 
@@ -94,4 +95,6 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+
 

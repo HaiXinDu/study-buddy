@@ -1,18 +1,36 @@
 /**
- * 学伴小管家 - 情感词典 V4
+ * 学伴小管家 - 情绪识别 Web Worker
+ * 将朴素贝叶斯 + TF-IDF 推理与词典匹配移至后台线程，避免主线程卡顿
  *
- * V4 改进：
- *   - 统一严重度：删除 SEVERITY_ORDER，直接用 data.severity，消除双轨制
- *   - stressed 移除中性词（老师/父母/作业等），改为组合匹配（"作业太多""老师逼"等）
- *   - 新增否定词前置检查：不放弃/不想学坏等否定语境不触发负面情绪
- *   - 移除 /一个人/ 裸匹配，改为 /孤.*一个人/ /一个人.*孤独/ 等组合
- *   - 移除幽灵 angry（模型7类无此类，词典保留但 severity 标注清楚）
+ * API:
+ *   主线程 -> Worker: { type: 'init', model: modelJson, words: wordArray }
+ *   主线程 -> Worker: { type: 'classify', text: '...', id: '...' }
+ *   Worker -> 主线程: { type: 'result', id: '...', result: { emotion, label, confidence, scores, ... } }
  */
 
-// ========== 否定词集合 ==========
+// ==================== 全局状态 ====================
+let model = null;
+let vocabMap = {};
+let wordSet = new Set();
+let loaded = false;
+
+// ==================== 停用词 ====================
+const stopWords = new Set([
+  "的","了","是","我","你","在","和","就","都","要","会","能","这","那",
+  "有","个","也","很","但","而","对","为","与","及","等","或","其",
+  "它","们","吧","啊","呢","哦","嗯","哈","吗","什么","怎么","这样",
+  "那么","一下","一直","一天","一个","一种","今天","明天","最近",
+  "现在","感觉","觉得","但是","因为","所以","虽然","还是","就是",
+  "不是","没有","知道","想","做","去","来","好","太","真","挺","又",
+  "还","可","得","着","过","把","给","很","更","最","被","让","从",
+  "到","上","下","里","中","多","少","些","那些","这些","自己","别人",
+  "什么","怎么","哪里","为什么","怎么样","如何","能否","是不是",
+  "已经","曾经","正在","将要","可能","应该","必须","需要"
+]);
+
+// ==================== 词典数据 ====================
 const NEGATION_WORDS = ['不', '没', '别', '不要', '不会', '没有', '并非', '不是', '从不', '从不', '并未', '毫不'];
 
-// ========== Emoji 情绪映射 ==========
 const EMOJI_MAP = {
   '😀': 'happy', '😃': 'happy', '😄': 'happy', '😁': 'happy', '😆': 'happy',
   '😂': 'happy', '🤣': 'happy', '😊': 'happy', '😇': 'happy', '🙂': 'happy',
@@ -32,7 +50,6 @@ const EMOJI_MAP = {
   '😵': 'crisis', '💀': 'crisis', '☠️': 'crisis', '🫠': 'crisis'
 };
 
-// ========== 网络用语/缩写情绪映射 ==========
 const SLANG_MAP = {
   'yyds': 'happy', '绝绝子': 'happy', 'awesome': 'happy', 'nb': 'happy',
   '太棒了': 'happy', 'yyds啊': 'happy', '神了': 'happy', '666': 'happy',
@@ -57,22 +74,7 @@ const SLANG_MAP = {
   'ok': 'positive', '好的': 'positive', '还行': 'positive', '可以': 'positive'
 };
 
-/**
- * 检查关键词前是否有否定词
- * @param {string} text - 原始文本
- * @param {string} keyword - 匹配到的关键词
- * @returns {boolean} - true 表示被否定
- */
-function isNegated(text, keyword) {
-  const idx = text.indexOf(keyword);
-  if (idx === -1) return false;
-  // 检查关键词前 1-3 个字符是否有否定词
-  const prefix = text.substring(Math.max(0, idx - 3), idx);
-  return NEGATION_WORDS.some(neg => prefix.includes(neg));
-}
-
 const EMOTION_DICTIONARY = {
-  // ========== 高危情绪 - crisis ==========
   crisis: {
     keywords: [
       "不想活", "活着没意义", "结束一切", "死了算了", "自杀", "自残",
@@ -92,12 +94,8 @@ const EMOTION_DICTIONARY = {
     color: "#E8463A",
     label: "需要关注",
     action: "immediate_support",
-    // 需要否定检查的关键词（这些词在否定语境下不是危机）
     negationCheck: ['想死', '了结', '解脱', '消失']
   },
-
-  // ========== 愤怒情绪 - angry ==========
-  // 注意：模型7类不含 angry，但词典层可识别，分类器会特殊处理
   angry: {
     keywords: [
       "生气", "气死", "气炸", "气愤", "愤怒", "恼火", "发火",
@@ -120,8 +118,6 @@ const EMOTION_DICTIONARY = {
     action: "anger_management",
     negationCheck: ['讨厌']
   },
-
-  // ========== 低落情绪 - depressed ==========
   depressed: {
     keywords: [
       "没用", "废物", "差劲", "失败", "考砸了", "不及格",
@@ -155,11 +151,8 @@ const EMOTION_DICTIONARY = {
     color: "#F87454",
     label: "情绪低落",
     action: "comfort_support",
-    // 需要否定检查的关键词
     negationCheck: ['放弃', '不想学', '不想做', '绝望', '崩溃']
   },
-
-  // ========== 焦虑情绪 - anxious ==========
   anxious: {
     keywords: [
       "紧张", "焦虑", "担心", "害怕", "恐惧", "着急", "急躁",
@@ -183,9 +176,6 @@ const EMOTION_DICTIONARY = {
     action: "calm_support",
     negationCheck: []
   },
-
-  // ========== 压力情绪 - stressed ==========
-  // V4: 移除中性词（老师/父母/作业/任务等），改为组合短语
   stressed: {
     keywords: [
       "压力", "压垮", "喘不过气", "窒息", "累瘫",
@@ -207,7 +197,6 @@ const EMOTION_DICTIONARY = {
       /通[宵]*/, /熬[夜]*/, /只睡[了]*/, /忙不[过来]*/,
       /超(?:负荷|载)/, /透支[了]*/, /累坏[了]*/,
       /考试周/, /期末/, /月考/, /模考/,
-      // 组合匹配：中性词+压力修饰词
       /作业.*(?:太多|写不完|做不完|堆积)/,
       /任务.*(?:太多|做不完)/,
       /(?:父母|家长|老师).*(?:逼|催|施压|期望|要求|压力)/,
@@ -219,8 +208,6 @@ const EMOTION_DICTIONARY = {
     action: "relief_support",
     negationCheck: []
   },
-
-  // ========== 积极情绪 - happy ==========
   happy: {
     keywords: [
       "开心", "高兴", "快乐", "兴奋", "激动", "惊喜", "满足",
@@ -252,8 +239,6 @@ const EMOTION_DICTIONARY = {
     action: "encourage_celebrate",
     negationCheck: []
   },
-
-  // ========== 中性/一般积极 - positive ==========
   positive: {
     keywords: [
       "不错", "还行", "可以", "挺好", "还好", "凑合",
@@ -275,10 +260,8 @@ const EMOTION_DICTIONARY = {
     color: "#22A5F7",
     label: "状态平稳",
     action: "gentle_encourage",
-    negationCheck: ['放弃']  // "不放弃" → positive
+    negationCheck: ['放弃']
   },
-
-  // ========== 中性 - neutral ==========
   neutral: {
     keywords: [
       "一般", "普通", "平常", "日常", "正常",
@@ -302,11 +285,14 @@ const EMOTION_DICTIONARY = {
   }
 };
 
-/**
- * 基于词典的快速情绪匹配（V4 - 含否定词检查）
- * @param {string} text - 用户输入文本
- * @returns {Object} - 匹配结果 {emotion, severity, label, color, action, matchedWords}
- */
+// ==================== 词典工具函数 ====================
+function isNegated(text, keyword) {
+  const idx = text.indexOf(keyword);
+  if (idx === -1) return false;
+  const prefix = text.substring(Math.max(0, idx - 3), idx);
+  return NEGATION_WORDS.some(neg => prefix.includes(neg));
+}
+
 function detectEmotionByDictionary(text) {
   if (!text || typeof text !== 'string') {
     return { emotion: 'neutral', severity: 0, label: '平平淡淡', color: '#A1A1AA', action: 'daily_check', matchedWords: [] };
@@ -314,7 +300,7 @@ function detectEmotionByDictionary(text) {
 
   const lowerText = text.toLowerCase();
 
-  // ========== 快速通道：Emoji 检测 ==========
+  // Emoji 检测
   for (const [emoji, emotion] of Object.entries(EMOJI_MAP)) {
     if (text.includes(emoji)) {
       const data = EMOTION_DICTIONARY[emotion];
@@ -324,7 +310,7 @@ function detectEmotionByDictionary(text) {
     }
   }
 
-  // ========== 快速通道：网络用语检测 ==========
+  // 网络用语检测
   for (const [slang, emotion] of Object.entries(SLANG_MAP)) {
     if (lowerText.includes(slang)) {
       const data = EMOTION_DICTIONARY[emotion];
@@ -336,16 +322,13 @@ function detectEmotionByDictionary(text) {
 
   let bestMatch = null;
   let maxSeverity = -1;
-  let allMatches = [];
 
   for (const [emotion, data] of Object.entries(EMOTION_DICTIONARY)) {
     let matchedWords = [];
     const negationCheck = data.negationCheck || [];
 
-    // 关键词匹配（含否定检查）
     for (const keyword of data.keywords) {
       if (lowerText.includes(keyword)) {
-        // 如果该关键词需要否定检查，且确实被否定，则跳过
         if (negationCheck.includes(keyword) && isNegated(lowerText, keyword)) {
           continue;
         }
@@ -353,7 +336,6 @@ function detectEmotionByDictionary(text) {
       }
     }
 
-    // 正则模式匹配
     if (data.patterns) {
       for (const pattern of data.patterns) {
         const match = lowerText.match(pattern);
@@ -365,17 +347,6 @@ function detectEmotionByDictionary(text) {
 
     if (matchedWords.length > 0) {
       const severity = data.severity;
-      allMatches.push({
-        emotion,
-        severity,
-        label: data.label,
-        color: data.color,
-        action: data.action,
-        matchedWords: [...new Set(matchedWords)],
-        matchCount: matchedWords.length
-      });
-
-      // 取严重程度最高的；同 severity 时取匹配词更多的
       if (severity > maxSeverity || (severity === maxSeverity && bestMatch && matchedWords.length > bestMatch.matchCount)) {
         maxSeverity = severity;
         bestMatch = {
@@ -391,7 +362,6 @@ function detectEmotionByDictionary(text) {
     }
   }
 
-  // 如果没有匹配到，返回中性
   if (!bestMatch) {
     return { emotion: 'neutral', severity: 0, label: '平平淡淡', color: '#A1A1AA', action: 'daily_check', matchedWords: [] };
   }
@@ -399,7 +369,264 @@ function detectEmotionByDictionary(text) {
   return bestMatch;
 }
 
-// 导出
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { EMOTION_DICTIONARY, detectEmotionByDictionary, isNegated, EMOJI_MAP, SLANG_MAP };
+// ==================== 分词 ====================
+function tokenize(text) {
+  text = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ');
+  const words = [];
+  let i = 0;
+  const len = text.length;
+
+  while (i < len) {
+    if (/\s/.test(text[i])) { i++; continue; }
+
+    let matched = false;
+    const maxLen = Math.min(8, len - i);
+
+    for (let wlen = maxLen; wlen >= 2; wlen--) {
+      const candidate = text.substring(i, i + wlen);
+      if (wordSet.has(candidate) && !stopWords.has(candidate)) {
+        words.push(candidate);
+        i += wlen;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      if (/[\u4e00-\u9fa5]/.test(text[i]) && !stopWords.has(text[i])) {
+        words.push(text[i]);
+      }
+      i++;
+    }
+  }
+
+  return words;
 }
+
+// ==================== TF-IDF 向量 ====================
+function transform(text) {
+  const words = tokenize(text);
+  const vector = new Array(model.vocab.length).fill(0);
+
+  if (words.length === 0) return vector;
+
+  const wordCount = {};
+  words.forEach(w => { wordCount[w] = (wordCount[w] || 0) + 1; });
+
+  const total = words.length;
+  for (const [w, count] of Object.entries(wordCount)) {
+    if (vocabMap[w] !== undefined) {
+      const idx = vocabMap[w];
+      const tf = count / total;
+      vector[idx] = tf * model.idf[idx];
+    }
+  }
+
+  return vector;
+}
+
+// ==================== 模型预测 ====================
+function predictWithModel(text) {
+  if (!loaded || !model) return null;
+
+  const vector = transform(text);
+  const scores = {};
+
+  for (const cls of model.classes) {
+    let score = model.class_prior[cls];
+    const logProb = model.feature_log_prob[cls];
+    for (let i = 0; i < vector.length; i++) {
+      if (vector[i] > 0) score += vector[i] * logProb[i];
+    }
+    scores[cls] = score;
+  }
+
+  // Softmax
+  const maxScore = Math.max(...Object.values(scores));
+  const expScores = {};
+  let total = 0;
+  for (const [cls, score] of Object.entries(scores)) {
+    expScores[cls] = Math.exp(score - maxScore);
+    total += expScores[cls];
+  }
+
+  const probabilities = {};
+  for (const cls of model.classes) {
+    probabilities[cls] = expScores[cls] / total;
+  }
+
+  const predicted = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0];
+  return { emotion: predicted[0], confidence: predicted[1], probabilities };
+}
+
+// ==================== 强度计算 ====================
+function _computeIntensity(emotion, matchCount, confidence) {
+  if (emotion === 'neutral') return 20;
+  let intensity = matchCount * 15 + (confidence || 0) * 50;
+  if (emotion === 'crisis') {
+    intensity = Math.max(intensity, 80);
+  }
+  if ((emotion === 'depressed' || emotion === 'angry') && matchCount > 0) {
+    intensity = Math.max(intensity, 50);
+  }
+  return Math.max(10, Math.min(100, Math.round(intensity)));
+}
+
+// ==================== 分类主入口 ====================
+function classify(text) {
+  // 第一层：词典快速匹配
+  const dictResult = detectEmotionByDictionary(text);
+
+  if (dictResult.emotion === 'crisis') {
+    return {
+      ...dictResult,
+      source: 'dictionary_priority',
+      confidence: 0.95,
+      probabilities: loaded ? predictWithModel(text)?.probabilities : null,
+      intensity: _computeIntensity('crisis', dictResult.matchedWords.length, 0.95)
+    };
+  }
+
+  // 第二层：模型预测
+  const modelResult = predictWithModel(text);
+
+  if (!modelResult) {
+    const conf = dictResult.matchCount ? Math.min(0.7, 0.3 + dictResult.matchCount * 0.1) : 0.5;
+    return {
+      ...dictResult,
+      source: 'dictionary_fallback',
+      confidence: conf,
+      intensity: _computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
+    };
+  }
+
+  // 第三层：决策融合
+  if (dictResult.emotion === modelResult.emotion) {
+    const conf = Math.min(0.98, modelResult.confidence + 0.1);
+    return {
+      emotion: modelResult.emotion,
+      severity: dictResult.severity,
+      label: dictResult.label,
+      color: dictResult.color,
+      action: dictResult.action,
+      confidence: conf,
+      probabilities: modelResult.probabilities,
+      source: 'fusion_agree',
+      matchedWords: dictResult.matchedWords,
+      intensity: _computeIntensity(modelResult.emotion, dictResult.matchedWords.length, conf)
+    };
+  }
+
+  // 高严重度（depressed/crisis）只需1个关键词匹配即优先词典
+  if (dictResult.severity >= 4 && dictResult.matchedWords.length >= 1) {
+    const conf = Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.1);
+    return {
+      ...dictResult,
+      confidence: conf,
+      probabilities: modelResult.probabilities,
+      source: 'dictionary_priority',
+      modelEmotion: modelResult.emotion,
+      intensity: _computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
+    };
+  }
+
+  // 愤怒情绪：模型未训练此类别，词典匹配1个即优先
+  if (dictResult.emotion === 'angry' && dictResult.matchedWords.length >= 1) {
+    const conf = Math.min(0.8, 0.55 + dictResult.matchedWords.length * 0.08);
+    return {
+      ...dictResult,
+      confidence: conf,
+      probabilities: modelResult.probabilities,
+      source: 'dictionary_priority',
+      modelEmotion: modelResult.emotion,
+      intensity: _computeIntensity('angry', dictResult.matchedWords.length, conf)
+    };
+  }
+
+  // 中等严重度（anxious/stressed）需至少2个关键词
+  if (dictResult.severity >= 3 && dictResult.matchedWords.length >= 2) {
+    const conf = Math.min(0.85, 0.6 + dictResult.matchedWords.length * 0.05);
+    return {
+      ...dictResult,
+      confidence: conf,
+      probabilities: modelResult.probabilities,
+      source: 'dictionary_priority',
+      modelEmotion: modelResult.emotion,
+      intensity: _computeIntensity(dictResult.emotion, dictResult.matchedWords.length, conf)
+    };
+  }
+
+  const emotionData = EMOTION_DICTIONARY[modelResult.emotion] || EMOTION_DICTIONARY.neutral;
+  return {
+    emotion: modelResult.emotion,
+    severity: emotionData.severity || 2,
+    label: emotionData.label || '平平淡淡',
+    color: emotionData.color || '#A1A1AA',
+    action: emotionData.action || 'daily_check',
+    confidence: modelResult.confidence,
+    probabilities: modelResult.probabilities,
+    source: 'model',
+    matchedWords: dictResult.matchedWords,
+    intensity: _computeIntensity(modelResult.emotion, dictResult.matchedWords.length, modelResult.confidence)
+  };
+}
+
+// ==================== Worker 消息处理 ====================
+self.onmessage = function(e) {
+  const { type, id } = e.data;
+
+  if (type === 'init') {
+    try {
+      model = e.data.model;
+      const words = e.data.words || [];
+
+      // 构建词汇映射
+      vocabMap = {};
+      model.vocab.forEach((word, idx) => {
+        vocabMap[word] = idx;
+      });
+
+      // 构建通用词表
+      wordSet = new Set(words);
+      model.vocab.forEach(w => wordSet.add(w));
+
+      loaded = true;
+      self.postMessage({
+        type: 'init_ok',
+        id,
+        vocabSize: model.vocab.length,
+        classes: model.classes,
+        totalWords: wordSet.size
+      });
+    } catch (err) {
+      self.postMessage({ type: 'init_error', id, error: err.message });
+    }
+    return;
+  }
+
+  if (type === 'classify') {
+    try {
+      const text = e.data.text;
+      const result = classify(text);
+      self.postMessage({
+        type: 'result',
+        id,
+        result
+      });
+    } catch (err) {
+      self.postMessage({
+        type: 'error',
+        id,
+        error: err.message
+      });
+    }
+    return;
+  }
+
+  // 未知指令
+  self.postMessage({
+    type: 'error',
+    id,
+    error: 'Unknown message type: ' + type
+  });
+};
