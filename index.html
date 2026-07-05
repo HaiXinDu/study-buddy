@@ -1953,19 +1953,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=18"></script>
-  <script src="ai-engine/reply-templates.js?v=18"></script>
-  <script src="ai-engine/emotion-classifier.js?v=18"></script>
-  <script src="ai-engine/study-planner.js?v=18"></script>
-  <script src="ai-engine/emotion-tracker.js?v=18"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=19"></script>
+  <script src="ai-engine/reply-templates.js?v=19"></script>
+  <script src="ai-engine/emotion-classifier.js?v=19"></script>
+  <script src="ai-engine/study-planner.js?v=19"></script>
+  <script src="ai-engine/emotion-tracker.js?v=19"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=18"></script>
-  <script src="ai-engine/proactive-care.js?v=18"></script>
-  <script src="ai-engine/mood-card.js?v=18"></script>
+  <script src="ai-engine/achievement.js?v=19"></script>
+  <script src="ai-engine/proactive-care.js?v=19"></script>
+  <script src="ai-engine/mood-card.js?v=19"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=18"></script>
-  <script src="ai-engine/word-analyzer.js?v=18"></script>
-  <script src="ai-engine/weekly-report.js?v=18"></script>
+  <script src="ai-engine/study-advisor.js?v=19"></script>
+  <script src="ai-engine/word-analyzer.js?v=19"></script>
+  <script src="ai-engine/weekly-report.js?v=19"></script>
 
   <script>
     // ================================================================
@@ -3429,8 +3429,7 @@
           ProactiveCare.dismiss(currentId);
         }
 
-        // 显示下一条（延迟一点体验更好）
-        setTimeout(() => showNextCareMessage(), 500);
+        // 不再自动弹出下一条，避免打扰用户
       });
     }
 
@@ -3454,16 +3453,18 @@
           subject: (StudyPlanner.lastInput.subjects || ['考试'])[0]
         });
       }
-      const message = ProactiveCare.check({
+      const messages = ProactiveCare.check({
         emotionHistory,
         usageHistory,
         examDates
       });
-      if (!message) {
-        // 没有更多关怀消息
+      // check() 返回数组，过滤已 dismiss 的，只显示第一条
+      const pending = (messages || []).filter(m => !ProactiveCare.isDismissed(m.id));
+      if (pending.length === 0) {
         document.getElementById('careBannerContainer').style.display = 'none';
         return;
       }
+      const message = pending[0];
 
       const container = document.getElementById('careBannerContainer');
       container.dataset.currentId = message.id;
@@ -3713,6 +3714,7 @@
   </script>
 </body>
 </html>
+
 
 
 
