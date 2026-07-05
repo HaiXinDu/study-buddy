@@ -251,7 +251,7 @@ def main():
     # 4. 训练朴素贝叶斯
     print("\n[4/5] 训练朴素贝叶斯分类器...")
     y = np.array(labels)
-    model = SimpleNaiveBayes(class_weight={'crisis': 2.0, 'depressed': 1.5})
+    model = SimpleNaiveBayes(class_weight={'crisis': 1.5, 'depressed': 1.0, 'angry': 1.1, 'neutral': 1.3, 'stressed': 1.1})
     model.fit(X, y)
     print(f"  类别: {model.classes}")
 
