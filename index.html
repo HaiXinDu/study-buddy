@@ -55,6 +55,11 @@
       --chart-fill-end: rgba(124,111,247,0.01);
     }
 
+    .dark-mode .priority-tag.core { background: rgba(232,70,58,0.15); color: var(--danger); }
+    .dark-mode .priority-tag.normal { background: rgba(75,63,227,0.15); color: var(--brand); }
+    .dark-mode .priority-tag.important { background: rgba(239,170,23,0.15); color: var(--warning); }
+    .dark-mode .priority-tag.necessary { background: rgba(29,201,129,0.15); color: var(--success); }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
       background: var(--bg);
@@ -1597,6 +1602,8 @@
         <div class="onboarding-dot active" data-dot="0"></div>
         <div class="onboarding-dot" data-dot="1"></div>
         <div class="onboarding-dot" data-dot="2"></div>
+        <div class="onboarding-dot" data-dot="3"></div>
+        <div class="onboarding-dot" data-dot="4"></div>
       </div>
       <button class="onboarding-btn" id="onboardingBtn">下一步</button>
     </div>
@@ -1623,17 +1630,17 @@
           </div>
           <div class="card" style="padding:14px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">今日专注(番茄)</div>
-            <div id="dashPomoCount" style="font-size:28px;font-weight:700;color:#1DC981;">0</div>
+            <div id="dashPomoCount" style="font-size:28px;font-weight:700;color:var(--success);">0</div>
             <div style="font-size:11px;color:var(--text-muted);">个番茄钟</div>
           </div>
           <div class="card" style="padding:14px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">今日聊天</div>
-            <div id="dashChatCount" style="font-size:28px;font-weight:700;color:#22A5F7;">0</div>
+            <div id="dashChatCount" style="font-size:28px;font-weight:700;color:var(--brand);">0</div>
             <div style="font-size:11px;color:var(--text-muted);">条对话</div>
           </div>
           <div class="card" style="padding:14px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">情绪记录</div>
-            <div id="dashEmotionCount" style="font-size:28px;font-weight:700;color:#EFAA17;">0</div>
+            <div id="dashEmotionCount" style="font-size:28px;font-weight:700;color:var(--warning);">0</div>
             <div style="font-size:11px;color:var(--text-muted);">条记录</div>
           </div>
         </div>
@@ -1823,7 +1830,7 @@
         <!-- 情绪日记 -->
         <div class="card" style="margin-top:12px;">
           <div class="card-title">📔 情绪日记</div>
-          <textarea id="journalInput" placeholder="今天想记录些什么..." style="width:100%;min-height:60px;border:1px solid var(--border-color,#e0e0e0);border-radius:8px;padding:8px;font-size:13px;resize:vertical;background:var(--msg-bg,#fff);color:var(--text-main,#333);"></textarea>
+          <textarea id="journalInput" placeholder="今天想记录些什么..." style="width:100%;min-height:60px;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;resize:vertical;background:var(--surface);color:var(--text);"></textarea>
           <button id="saveJournalBtn" style="margin-top:6px;padding:6px 16px;border:none;border-radius:8px;background:var(--brand);color:white;font-size:12px;cursor:pointer;">保存日记</button>
           <div id="journalList" style="margin-top:12px;"></div>
         </div>
@@ -1946,19 +1953,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=17"></script>
-  <script src="ai-engine/reply-templates.js?v=17"></script>
-  <script src="ai-engine/emotion-classifier.js?v=17"></script>
-  <script src="ai-engine/study-planner.js?v=17"></script>
-  <script src="ai-engine/emotion-tracker.js?v=17"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=18"></script>
+  <script src="ai-engine/reply-templates.js?v=18"></script>
+  <script src="ai-engine/emotion-classifier.js?v=18"></script>
+  <script src="ai-engine/study-planner.js?v=18"></script>
+  <script src="ai-engine/emotion-tracker.js?v=18"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=17"></script>
-  <script src="ai-engine/proactive-care.js?v=17"></script>
-  <script src="ai-engine/mood-card.js?v=17"></script>
+  <script src="ai-engine/achievement.js?v=18"></script>
+  <script src="ai-engine/proactive-care.js?v=18"></script>
+  <script src="ai-engine/mood-card.js?v=18"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=17"></script>
-  <script src="ai-engine/word-analyzer.js?v=17"></script>
-  <script src="ai-engine/weekly-report.js?v=17"></script>
+  <script src="ai-engine/study-advisor.js?v=18"></script>
+  <script src="ai-engine/word-analyzer.js?v=18"></script>
+  <script src="ai-engine/weekly-report.js?v=18"></script>
 
   <script>
     // ================================================================
@@ -2040,9 +2047,10 @@
 
       const steps = [
         { icon: '🤗', iconClass: 'step1', title: '欢迎使用学伴小管家', desc: '我是你的 AI 学习伙伴，可以陪你聊天、做学习规划、追踪情绪变化。让我来引导你快速上手吧！', btnText: '下一步' },
-        { icon: '💬', iconClass: 'step2', title: '和我聊聊你的心情', desc: '在「聊天」页面，你可以随时告诉我你的感受。我会识别你的情绪，并给你温暖、有针对性的回复和建议。', btnText: '下一步' },
-        { icon: '📖', iconClass: 'step2', title: '试试学习规划功能', desc: '切换到「学习规划」，描述你的考试科目和剩余时间，我会帮你生成一份科学的每日学习计划，还可以逐项勾选完成哦。', btnText: '下一步' },
-        { icon: '📊', iconClass: 'step3', title: '查看情绪趋势', desc: '在「情绪趋势」中，你可以快速打卡记录心情，查看情绪变化折线图和健康评分，还能导出数据。准备好了吗？', btnText: '开始使用' }
+        { icon: '🏠', iconClass: 'step2', title: '首页仪表盘', desc: '在首页你可以一眼看到情绪健康评分、今日专注时长、AI 情绪预测，还能快速跳转到各功能模块。', btnText: '下一步' },
+        { icon: '💬', iconClass: 'step2', title: '和我聊聊你的心情', desc: '在「聊天」页面，你可以随时告诉我你的感受。我支持语音输入、emoji 识别和网络用语理解哦！', btnText: '下一步' },
+        { icon: '📖', iconClass: 'step2', title: '试试学习规划功能', desc: '切换到「学习规划」，描述你的考试科目和剩余时间，我会帮你生成一份科学的每日学习计划。还可以查看周报和触发词分析。', btnText: '下一步' },
+        { icon: '📊', iconClass: 'step3', title: '记录和了解你的情绪', desc: '在「情绪趋势」中，你可以打卡记录心情，查看热力图日历、趋势预测，还能写情绪日记。准备好了吗？', btnText: '开始使用' }
       ];
 
       let currentStep = 0;
@@ -2262,6 +2270,17 @@
       }
 
       // ========== 情绪识别纠错反馈 ==========
+      // 情绪字典：用于纠错学习回填情绪元数据
+      const EMOTION_DICTIONARY = {
+        depressed: { label: '情绪低落', color: '#F87454' },
+        anxious:   { label: '焦虑不安', color: '#EFAA17' },
+        stressed:  { label: '压力过大', color: '#EFAA17' },
+        happy:     { label: '心情愉快', color: '#1DC981' },
+        positive:  { label: '状态平稳', color: '#22A5F7' },
+        neutral:   { label: '平平淡淡', color: '#A1A1AA' }
+      };
+
+
       function showEmotionCorrection(originalResult, aiBubble, tagEl, feedbackBtn) {
         // 防止重复弹窗
         if (aiBubble.querySelector('.emotion-correction-panel')) return;
@@ -2278,11 +2297,11 @@
         const panel = document.createElement('div');
         panel.className = 'emotion-correction-panel';
         // 使用 CSS 变量适配暗黑模式，而非硬编码颜色
-        panel.style.cssText = 'margin-top:6px;padding:8px;background:var(--msg-bg,#f8f8f8);border:1px solid var(--border-color,#e0e0e0);border-radius:8px;font-size:12px;';
+        panel.style.cssText = 'margin-top:6px;padding:8px;background:var(--surface-muted);border:1px solid var(--border);border-radius:8px;font-size:12px;';
 
         const title = document.createElement('div');
         title.textContent = '你觉得你的情绪是？';
-        title.style.cssText = 'margin-bottom:6px;color:var(--text-muted,#666);';
+        title.style.cssText = 'margin-bottom:6px;color:var(--text-muted);';
         panel.appendChild(title);
 
         const btnRow = document.createElement('div');
@@ -2311,6 +2330,24 @@
               EmotionTracker.addRecord(e.key, appState.lastUserText || '', 0.95, 'correction');
             }
 
+            // 纠错学习：保存用户纠正到 LocalStorage
+            const corrections = JSON.parse(localStorage.getItem('studybuddy_corrections') || '[]');
+            const existing = corrections.find(c => c.input === appState.lastUserText);
+            if (existing) {
+              existing.correctEmotion = e.key;
+              existing.count = (existing.count || 1) + 1;
+            } else {
+              corrections.push({
+                input: appState.lastUserText,
+                originalEmotion: originalResult.emotion,
+                correctEmotion: e.key,
+                count: 1
+              });
+            }
+            // 最多保存 200 条纠错记录
+            if (corrections.length > 200) corrections.shift();
+            localStorage.setItem('studybuddy_corrections', JSON.stringify(corrections));
+
             // 更新当前情绪状态
             appState.currentEmotion = correctedResult;
 
@@ -2332,7 +2369,7 @@
 
         const closeBtn = document.createElement('button');
         closeBtn.textContent = '取消';
-        closeBtn.style.cssText = 'margin-top:6px;font-size:11px;color:#999;background:none;border:none;cursor:pointer;';
+        closeBtn.style.cssText = 'margin-top:6px;font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;';
         closeBtn.addEventListener('click', () => panel.remove());
         panel.appendChild(closeBtn);
 
@@ -2357,6 +2394,21 @@
         const emotionResult = emotionClassifier
           ? await emotionClassifier.classifyAsync(text)
           : detectEmotionByDictionary(text);
+
+        // 纠错学习检查
+        const corrections = JSON.parse(localStorage.getItem('studybuddy_corrections') || '[]');
+        const exactMatch = corrections.find(c => c.input === text);
+        if (exactMatch && exactMatch.count >= 1) {
+          // 用纠错结果覆盖
+          emotionResult.emotion = exactMatch.correctEmotion;
+          const correctedData = EMOTION_DICTIONARY[exactMatch.correctEmotion];
+          if (correctedData) {
+            emotionResult.label = correctedData.label;
+            emotionResult.color = correctedData.color;
+            emotionResult.action = correctedData.action;
+            emotionResult.source = 'correction_learned';
+          }
+        }
 
         appState.currentEmotion = emotionResult;
 
@@ -2413,7 +2465,7 @@
             if (emotionResult.intensity !== undefined) {
               const intensityBar = document.createElement('div');
               intensityBar.style.cssText = 'margin-top:4px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);';
-              intensityBar.innerHTML = `<span>强度</span><div style="width:60px;height:4px;background:#eee;border-radius:2px;overflow:hidden;"><div style="height:100%;width:${emotionResult.intensity}%;background:${emotionResult.color};border-radius:2px;"></div></div><span>${emotionResult.intensity}%</span>`;
+              intensityBar.innerHTML = `<span>强度</span><div style="width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${emotionResult.intensity}%;background:${emotionResult.color};border-radius:2px;"></div></div><span>${emotionResult.intensity}%</span>`;
               aiBubble.querySelector('.msg-content').appendChild(intensityBar);
             }
 
@@ -2421,7 +2473,7 @@
             const feedbackBtn = document.createElement('button');
             feedbackBtn.className = 'emotion-feedback-btn';
             feedbackBtn.textContent = '识别不准？';
-            feedbackBtn.style.cssText = 'font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:10px;padding:2px 8px;cursor:pointer;margin-top:4px;';
+            feedbackBtn.style.cssText = 'font-size:11px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:10px;padding:2px 8px;cursor:pointer;margin-top:4px;';
             feedbackBtn.addEventListener('click', function() {
               showEmotionCorrection(emotionResult, aiBubble, tag, feedbackBtn);
             });
@@ -2809,7 +2861,7 @@
       container.innerHTML = days.map(day => {
         const color = day.emotion ? (emotionColors[day.emotion] || '#ccc') : '#f0f0f0';
         const dayNum = day.date.slice(8);
-        return `<div title="${day.date}: ${day.emotion || '无记录'}" style="width:28px;height:28px;border-radius:4px;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;color:${day.emotion?'white':'#ccc'};">${parseInt(dayNum)}</div>`;
+        return `<div title="${day.date}: ${day.emotion || '无记录'}" style="width:28px;height:28px;border-radius:4px;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;color:${day.emotion?'white':'var(--text-muted)'};">${parseInt(dayNum)}</div>`;
       }).join('');
     }
 
@@ -3593,19 +3645,20 @@
     document.getElementById('wordAnalysisBtn')?.addEventListener('click', () => {
       const records = EmotionTracker.getAllRecords();
       const result = WordAnalyzer.analyze(records, appState.chatHistory);
+      const isDarkMode = document.documentElement.classList.contains('dark-mode');
       let html = '';
       if (result.summary) html += `<p style="font-size:14px;margin-bottom:12px;">${result.summary}</p>`;
       if (result.topSubjects.length > 0) {
         html += '<div style="font-size:13px;font-weight:600;margin:8px 0;">📚 高频学科</div>';
-        html += result.topSubjects.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:#f0f0ff;border-radius:12px;font-size:12px;">${word} ×${count}</span>`).join('');
+        html += result.topSubjects.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:${isDarkMode?'rgba(75,63,227,0.15)':'#f0f0ff'};border-radius:12px;font-size:12px;">${word} ×${count}</span>`).join('');
       }
       if (result.positiveTriggers.length > 0) {
         html += '<div style="font-size:13px;font-weight:600;margin:8px 0;">😊 正面触发词</div>';
-        html += result.positiveTriggers.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:#d4f5e5;border-radius:12px;font-size:12px;color:#1DC981;">${word} ×${count}</span>`).join('');
+        html += result.positiveTriggers.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:${isDarkMode?'rgba(29,201,129,0.15)':'#d4f5e5'};border-radius:12px;font-size:12px;color:var(--success);">${word} ×${count}</span>`).join('');
       }
       if (result.negativeTriggers.length > 0) {
         html += '<div style="font-size:13px;font-weight:600;margin:8px 0;">😔 负面触发词</div>';
-        html += result.negativeTriggers.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:#ffe0d4;border-radius:12px;font-size:12px;color:#F87454;">${word} ×${count}</span>`).join('');
+        html += result.negativeTriggers.map(([word, count]) => `<span style="display:inline-block;padding:4px 10px;margin:2px;background:${isDarkMode?'rgba(232,70,58,0.15)':'#ffe0d4'};border-radius:12px;font-size:12px;color:var(--danger);">${word} ×${count}</span>`).join('');
       }
       if (!html) html = '<p style="color:var(--text-muted);">数据不足，多聊几句再来分析吧</p>';
       showReportModal(html, '情绪触发词分析');
@@ -3660,6 +3713,7 @@
   </script>
 </body>
 </html>
+
 
 
 
