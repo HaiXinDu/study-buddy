@@ -1170,6 +1170,253 @@
       transform: translateY(-1px);
     }
 
+    /* ========== 通用模态框（AI设置/周报/情绪日记） ========== */
+    .app-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 1100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .app-modal-overlay.show { display: flex; }
+
+    .app-modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      max-width: 520px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.4s ease;
+      position: relative;
+    }
+
+    .app-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .app-modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .app-modal-close:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .app-modal-section {
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .app-modal-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .app-modal-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .app-modal-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .app-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+      color: var(--text);
+      font-size: 13px;
+      margin-bottom: 8px;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .app-input:focus {
+      outline: none;
+      border-color: var(--brand);
+      background: var(--surface);
+    }
+
+    .app-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .app-input-row .app-input { margin-bottom: 0; flex: 1; }
+
+    .app-btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--brand);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .app-btn:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .app-btn.secondary { background: var(--surface-muted); color: var(--text); border: 1px solid var(--border); }
+    .app-btn.secondary:hover { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+    .app-btn.danger { background: var(--danger); }
+    .app-btn.danger:hover { background: #c8362f; }
+    .app-btn.success { background: var(--success); }
+    .app-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .app-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .app-status-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .app-status-text.ok { color: var(--success); }
+    .app-status-text.warn { color: var(--warning); }
+
+    /* 周报内容 */
+    .weekly-report-content {
+      background: var(--surface-muted);
+      border-radius: var(--radius);
+      padding: 18px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text);
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .weekly-report-content h3 {
+      font-size: 15px;
+      color: var(--brand);
+      margin: 10px 0 6px;
+    }
+
+    .weekly-report-content h3:first-child { margin-top: 0; }
+
+    /* 情绪日记 */
+    .diary-stars {
+      display: flex;
+      gap: 4px;
+      margin: 6px 0 10px;
+    }
+
+    .diary-star {
+      font-size: 26px;
+      cursor: pointer;
+      color: var(--border);
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .diary-star.active { color: var(--warning); }
+
+    .diary-list {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    .diary-item {
+      background: var(--surface-muted);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--brand);
+    }
+
+    .diary-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .diary-item-stars { color: var(--warning); font-size: 13px; }
+
+    .diary-item-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .diary-item-del {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .diary-item-del:hover { opacity: 1; }
+
+    .diary-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 24px;
+    }
+
     /* ========== Toast 提示 ========== */
     .toast-container {
       position: fixed;
@@ -1530,6 +1777,8 @@
     <div class="header-right">
       <!-- 优化3: 深色模式切换 -->
       <button class="dark-mode-toggle" id="darkModeToggle" title="切换深色模式">☀️</button>
+      <!-- AI 设置入口 -->
+      <button class="dark-mode-toggle" id="aiSettingsBtn" title="AI 设置与数据管理">⚙️</button>
       <div class="model-badge">
         <span class="dot"></span>
         <span id="modelStatus">模型加载中...</span>
@@ -1582,6 +1831,106 @@
         <div class="onboarding-dot" data-dot="2"></div>
       </div>
       <button class="onboarding-btn" id="onboardingBtn">下一步</button>
+    </div>
+  </div>
+
+  <!-- ========== AI 设置模态框 ========== -->
+  <div class="app-modal-overlay" id="aiSettingsModal">
+    <div class="app-modal">
+      <div class="app-modal-header">
+        <div class="app-modal-title">⚙️ AI 设置与数据管理</div>
+        <button class="app-modal-close" data-close="aiSettingsModal">×</button>
+      </div>
+
+      <!-- 豆包 API Key -->
+      <div class="app-modal-section">
+        <div class="app-modal-section-title">🤖 豆包 AI API Key</div>
+        <p class="app-modal-desc">配置后，聊天将优先调用豆包大模型生成回复；未配置或失败时自动回退到本地模板。</p>
+        <div class="app-input-row">
+          <input type="password" class="app-input" id="doubaoApiKeyInput" placeholder="输入豆包 API Key...">
+          <button class="app-btn" id="saveDoubaoKeyBtn">保存</button>
+        </div>
+        <div class="app-status-text" id="doubaoKeyStatus">未配置</div>
+      </div>
+
+      <!-- Supabase 配置（可选） -->
+      <div class="app-modal-section">
+        <div class="app-modal-section-title">☁️ Supabase 云同步（可选）</div>
+        <p class="app-modal-desc">配置后可启用跨设备数据同步；留空则仅使用本地存储。</p>
+        <input type="text" class="app-input" id="supabaseUrlInput" placeholder="Supabase Project URL">
+        <div class="app-input-row">
+          <input type="password" class="app-input" id="supabaseKeyInput" placeholder="Supabase anon key...">
+          <button class="app-btn secondary" id="saveSupabaseBtn">保存</button>
+        </div>
+        <div class="app-status-text" id="supabaseStatus">未配置</div>
+      </div>
+
+      <!-- 数据导入导出 -->
+      <div class="app-modal-section">
+        <div class="app-modal-section-title">💾 数据管理</div>
+        <p class="app-modal-desc">导出全部数据（情绪记录/聊天/番茄/日记）为 JSON 文件，或从备份文件导入。</p>
+        <div class="app-btn-grid">
+          <button class="app-btn secondary" id="modalExportBtn">📥 导出全部数据</button>
+          <button class="app-btn secondary" id="modalImportBtn">📤 导入数据</button>
+        </div>
+        <input type="file" id="modalImportFile" accept=".json" style="display:none;">
+      </div>
+
+      <!-- 清除数据 -->
+      <div class="app-modal-section">
+        <div class="app-modal-section-title">🗑️ 清除数据</div>
+        <p class="app-modal-desc">将清空本地的情绪记录、聊天历史、番茄记录与日记，此操作不可撤销。</p>
+        <button class="app-btn danger" id="modalClearBtn">清除全部本地数据</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 周报模态框 ========== -->
+  <div class="app-modal-overlay" id="weeklyReportModal">
+    <div class="app-modal">
+      <div class="app-modal-header">
+        <div class="app-modal-title">📋 本周学习与情绪报告</div>
+        <button class="app-modal-close" data-close="weeklyReportModal">×</button>
+      </div>
+      <div class="weekly-report-content" id="weeklyReportContent">报告生成中...</div>
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;">
+        <button class="app-btn secondary" data-close="weeklyReportModal">关闭</button>
+        <button class="app-btn success" id="weeklyReportDownloadBtn">📥 下载报告</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 情绪日记模态框 ========== -->
+  <div class="app-modal-overlay" id="emotionDiaryModal">
+    <div class="app-modal">
+      <div class="app-modal-header">
+        <div class="app-modal-title">📔 情绪日记</div>
+        <button class="app-modal-close" data-close="emotionDiaryModal">×</button>
+      </div>
+
+      <div class="app-modal-section">
+        <div class="app-modal-section-title">✍️ 写下今天的心情</div>
+        <div class="app-modal-desc">记录你的感受，回顾时能看到自己情绪的成长轨迹。</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:2px;">心情评分：</div>
+        <div class="diary-stars" id="diaryStars">
+          <span class="diary-star" data-star="1">★</span>
+          <span class="diary-star" data-star="2">★</span>
+          <span class="diary-star" data-star="3">★</span>
+          <span class="diary-star" data-star="4">★</span>
+          <span class="diary-star" data-star="5">★</span>
+        </div>
+        <textarea class="app-input" id="diaryTextInput" placeholder="今天发生了什么？你的感受如何？" rows="4" style="resize:vertical;min-height:80px;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end;">
+          <button class="app-btn" id="diarySaveBtn">💾 保存日记</button>
+        </div>
+      </div>
+
+      <div class="app-modal-section" style="border-bottom:none;">
+        <div class="app-modal-section-title">📚 历史日记</div>
+        <div class="diary-list" id="diaryList">
+          <div class="diary-empty">还没有日记记录，开始写下第一篇吧～</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1733,8 +2082,10 @@
           </div>
         </div>
 
-        <!-- 优化5: 导出按钮 -->
-        <div style="display:flex;justify-content:flex-end;">
+        <!-- 优化5: 导出按钮 + 周报/日记入口 -->
+        <div style="display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;">
+          <button class="export-btn" id="emotionDiaryBtn">📔 情绪日记</button>
+          <button class="export-btn" id="weeklyReportBtn">📋 本周报告</button>
           <button class="export-btn" id="exportDataBtn">📥 导出情绪数据（CSV）</button>
         </div>
       </div>
@@ -1846,15 +2197,20 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=11"></script>
-  <script src="ai-engine/reply-templates.js?v=11"></script>
-  <script src="ai-engine/emotion-classifier.js?v=11"></script>
-  <script src="ai-engine/study-planner.js?v=11"></script>
-  <script src="ai-engine/emotion-tracker.js?v=11"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=12"></script>
+  <script src="ai-engine/reply-templates.js?v=12"></script>
+  <script src="ai-engine/emotion-classifier.js?v=12"></script>
+  <script src="ai-engine/study-planner.js?v=12"></script>
+  <script src="ai-engine/emotion-tracker.js?v=12"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=11"></script>
-  <script src="ai-engine/proactive-care.js?v=11"></script>
-  <script src="ai-engine/mood-card.js?v=11"></script>
+  <script src="ai-engine/achievement.js?v=12"></script>
+  <script src="ai-engine/proactive-care.js?v=12"></script>
+  <script src="ai-engine/mood-card.js?v=12"></script>
+  <!-- 新增模块脚本 v12：豆包AI、云同步、周报、情绪日记 -->
+  <script src="ai-engine/doubao-ai.js?v=12"></script>
+  <script src="ai-engine/cloud-sync.js?v=12"></script>
+  <script src="ai-engine/weekly-report.js?v=12"></script>
+  <script src="ai-engine/emotion-diary.js?v=12"></script>
 
   <script>
     // ================================================================
@@ -2278,81 +2634,114 @@
         setTimeout(() => {
           typingEl.remove();
 
-          // 优化6: 使用完整 history 调用 generatePersonalizedReply
-          const reply = generatePersonalizedReply(emotionResult.emotion, appState.chatHistory);
+          // 优先使用豆包AI，失败则fallback到本地模板（async 双通道）
+          (async () => {
+            let replyText = '';
+            let replySource = 'template';
+            // 模板路径下的完整回复对象（含 mainReply / followUp / suggestions / urgency）
+            let reply = null;
 
-          // 记录到情绪追踪（聊天来源）
-          EmotionTracker.addRecord(emotionResult.emotion, text, emotionResult.confidence || 0.8, 'chat');
+            // 1) 尝试豆包 API
+            if (typeof DoubaoAI !== 'undefined' && DoubaoAI.isConfigured && DoubaoAI.isConfigured()) {
+              try {
+                const aiResult = await DoubaoAI.chat(text, appState.chatHistory, emotionResult.emotion);
+                if (aiResult && aiResult.success && aiResult.reply) {
+                  replyText = aiResult.reply;
+                  replySource = 'doubao';
+                }
+              } catch (e) {
+                console.warn('DoubaoAI 调用失败，将 fallback 到本地模板', e);
+              }
+            }
 
-          // 成就检测：发送消息
-          if (typeof AchievementSystem !== 'undefined') AchievementSystem.check('chat');
+            // 2) Fallback 到本地模板
+            if (!replyText) {
+              // 优化6: 使用完整 history 调用 generatePersonalizedReply
+              reply = generatePersonalizedReply(emotionResult.emotion, appState.chatHistory);
+              replyText = `${reply.mainReply}\n\n${reply.followUp}`;
+            }
 
-          // 保存AI回复到历史
-          const aiMsg = {
-            role: 'ai',
-            text: reply.mainReply + '\n' + reply.followUp,
-            emotion: emotionResult.emotion,
-            timestamp: Date.now()
-          };
-          appState.chatHistory.push(aiMsg);
+            // 记录到情绪追踪（聊天来源）
+            EmotionTracker.addRecord(emotionResult.emotion, text, emotionResult.confidence || 0.8, 'chat');
 
-          // 显示AI回复
-          const aiBubble = appendMessage('ai', `${reply.mainReply}\n\n${reply.followUp}`, getTimeStr());
+            // 成就检测：发送消息
+            if (typeof AchievementSystem !== 'undefined') AchievementSystem.check('chat');
 
-          // 情绪标签
-          if (emotionResult.emotion) {
-            const tag = document.createElement('div');
-            tag.className = 'msg-emotion-tag';
-            tag.style.background = emotionResult.color + '20';
-            tag.style.color = emotionResult.color;
-            tag.textContent = `检测情绪：${emotionResult.label}`;
-            aiBubble.querySelector('.msg-content').appendChild(tag);
+            // 保存AI回复到历史
+            const aiMsg = {
+              role: 'ai',
+              text: replyText,
+              emotion: emotionResult.emotion,
+              timestamp: Date.now()
+            };
+            appState.chatHistory.push(aiMsg);
 
-            // 情绪识别纠错反馈
-            const feedbackBtn = document.createElement('button');
-            feedbackBtn.className = 'emotion-feedback-btn';
-            feedbackBtn.textContent = '识别不准？';
-            feedbackBtn.style.cssText = 'font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:10px;padding:2px 8px;cursor:pointer;margin-top:4px;';
-            feedbackBtn.addEventListener('click', function() {
-              showEmotionCorrection(emotionResult, aiBubble, tag, feedbackBtn);
-            });
-            aiBubble.querySelector('.msg-content').appendChild(feedbackBtn);
-          }
+            // 显示AI回复
+            const aiBubble = appendMessage('ai', replyText, getTimeStr());
 
-          // 建议按钮 - 点击后给出专属回复，不重新走聊天
-          if (reply.suggestions && reply.suggestions.length > 0) {
-            const sugDiv = document.createElement('div');
-            sugDiv.className = 'msg-suggestions';
-            reply.suggestions.forEach(s => {
-              const btn = document.createElement('button');
-              btn.className = 'msg-suggestion-btn';
-              btn.textContent = s.text;
-              btn.addEventListener('click', () => {
-                btn.disabled = true;
-                btn.style.opacity = '0.6';
-                btn.style.cursor = 'default';
-                // 根据建议类型给出专属回复
-                const tipReply = getFollowUpReply(s.type, s.text);
-                appendMessage('user', s.text, new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
-                setTimeout(() => {
-                  addAIPlainMessage(tipReply);
-                  EmotionTracker.addRecord(appState.currentEmotion || 'positive', s.text, 0.9, 'checkin');
-                  AchievementSystem.check('emotion_checkin');
-                }, 400);
+            // 豆包来源标识
+            if (replySource === 'doubao') {
+              const sourceTag = document.createElement('div');
+              sourceTag.style.cssText = 'font-size:10px;color:var(--brand);margin-top:4px;opacity:0.75;display:flex;align-items:center;gap:4px;';
+              sourceTag.textContent = '✨ 由豆包AI生成';
+              aiBubble.querySelector('.msg-content').appendChild(sourceTag);
+            }
+
+            // 情绪标签
+            if (emotionResult.emotion) {
+              const tag = document.createElement('div');
+              tag.className = 'msg-emotion-tag';
+              tag.style.background = emotionResult.color + '20';
+              tag.style.color = emotionResult.color;
+              tag.textContent = `检测情绪：${emotionResult.label}`;
+              aiBubble.querySelector('.msg-content').appendChild(tag);
+
+              // 情绪识别纠错反馈
+              const feedbackBtn = document.createElement('button');
+              feedbackBtn.className = 'emotion-feedback-btn';
+              feedbackBtn.textContent = '识别不准？';
+              feedbackBtn.style.cssText = 'font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:10px;padding:2px 8px;cursor:pointer;margin-top:4px;';
+              feedbackBtn.addEventListener('click', function() {
+                showEmotionCorrection(emotionResult, aiBubble, tag, feedbackBtn);
               });
-              sugDiv.appendChild(btn);
-            });
-            aiBubble.querySelector('.msg-content').appendChild(sugDiv);
-          }
+              aiBubble.querySelector('.msg-content').appendChild(feedbackBtn);
+            }
 
-          // 更新侧边栏情绪状态
-          updateEmotionSidebar(emotionResult);
+            // 建议按钮 - 点击后给出专属回复，不重新走聊天（仅模板路径有 suggestions）
+            if (replySource === 'template' && reply && reply.suggestions && reply.suggestions.length > 0) {
+              const sugDiv = document.createElement('div');
+              sugDiv.className = 'msg-suggestions';
+              reply.suggestions.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'msg-suggestion-btn';
+                btn.textContent = s.text;
+                btn.addEventListener('click', () => {
+                  btn.disabled = true;
+                  btn.style.opacity = '0.6';
+                  btn.style.cursor = 'default';
+                  // 根据建议类型给出专属回复
+                  const tipReply = getFollowUpReply(s.type, s.text);
+                  appendMessage('user', s.text, new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
+                  setTimeout(() => {
+                    addAIPlainMessage(tipReply);
+                    EmotionTracker.addRecord(appState.currentEmotion || 'positive', s.text, 0.9, 'checkin');
+                    AchievementSystem.check('emotion_checkin');
+                  }, 400);
+                });
+                sugDiv.appendChild(btn);
+              });
+              aiBubble.querySelector('.msg-content').appendChild(sugDiv);
+            }
 
-          // 危急情绪警告
-          if (reply.urgency) {
-            showToast('检测到需要关注的情绪，请及时寻求帮助', 'warning');
-          }
+            // 更新侧边栏情绪状态
+            updateEmotionSidebar(emotionResult);
 
+            // 危急情绪警告（仅模板路径有 urgency 字段）
+            if (replySource === 'template' && reply && reply.urgency) {
+              showToast('检测到需要关注的情绪，请及时寻求帮助', 'warning');
+            }
+
+          })();
         }, 800 + Math.random() * 600);
       }
 
@@ -3166,6 +3555,257 @@
         }
       });
     }
+
+    // ========== AI 设置 / 周报 / 情绪日记 模态框逻辑 ==========
+    (function initAppModals() {
+      // 通用：打开/关闭模态框
+      function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.add('show');
+      }
+      function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.remove('show');
+      }
+
+      // 所有 data-close 按钮绑定关闭
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.close));
+      });
+      // 点击遮罩区域关闭
+      document.querySelectorAll('.app-modal-overlay').forEach(ov => {
+        ov.addEventListener('click', (e) => {
+          if (e.target === ov) ov.classList.remove('show');
+        });
+      });
+
+      // ---------- AI 设置 ----------
+      const aiSettingsBtn = document.getElementById('aiSettingsBtn');
+      const doubaoKeyInput = document.getElementById('doubaoApiKeyInput');
+      const doubaoKeyStatus = document.getElementById('doubaoKeyStatus');
+      const supabaseUrlInput = document.getElementById('supabaseUrlInput');
+      const supabaseKeyInput = document.getElementById('supabaseKeyInput');
+      const supabaseStatus = document.getElementById('supabaseStatus');
+
+      function refreshDoubaoStatus() {
+        if (typeof DoubaoAI !== 'undefined' && DoubaoAI.isConfigured()) {
+          const k = DoubaoAI.getApiKey();
+          doubaoKeyInput.value = k;
+          doubaoKeyStatus.textContent = '已配置（' + k.slice(0, 4) + '****' + k.slice(-4) + '）';
+          doubaoKeyStatus.className = 'app-status-text ok';
+        } else {
+          doubaoKeyStatus.textContent = '未配置';
+          doubaoKeyStatus.className = 'app-status-text';
+        }
+      }
+      function refreshSupabaseStatus() {
+        if (typeof CloudSync !== 'undefined' && CloudSync.isConfigured()) {
+          supabaseUrlInput.value = CloudSync._supabaseUrl || '';
+          supabaseKeyInput.value = CloudSync._supabaseKey || '';
+          supabaseStatus.textContent = '已配置（云同步可用）';
+          supabaseStatus.className = 'app-status-text ok';
+        } else {
+          supabaseStatus.textContent = '未配置';
+          supabaseStatus.className = 'app-status-text';
+        }
+      }
+
+      aiSettingsBtn.addEventListener('click', () => {
+        refreshDoubaoStatus();
+        refreshSupabaseStatus();
+        openModal('aiSettingsModal');
+      });
+
+      document.getElementById('saveDoubaoKeyBtn').addEventListener('click', () => {
+        const key = (doubaoKeyInput.value || '').trim();
+        if (key) {
+          DoubaoAI.setApiKey(key);
+          showToast('豆包 API Key 已保存', 'success');
+        } else {
+          localStorage.removeItem('studybuddy_doubao_apikey');
+          showToast('已清除豆包 API Key', 'warning');
+        }
+        refreshDoubaoStatus();
+      });
+
+      document.getElementById('saveSupabaseBtn').addEventListener('click', () => {
+        const url = (supabaseUrlInput.value || '').trim();
+        const key = (supabaseKeyInput.value || '').trim();
+        if (url && key) {
+          CloudSync.setConfig(url, key);
+          showToast('Supabase 配置已保存', 'success');
+        } else {
+          CloudSync.clearConfig();
+          showToast('已清除 Supabase 配置', 'warning');
+        }
+        refreshSupabaseStatus();
+      });
+
+      // 数据导出（调用 CloudSync.exportAll）
+      document.getElementById('modalExportBtn').addEventListener('click', () => {
+        if (typeof CloudSync !== 'undefined' && CloudSync.exportAll) {
+          CloudSync.exportAll();
+          showToast('数据导出成功', 'success');
+          if (typeof AchievementSystem !== 'undefined') AchievementSystem.check('data_export');
+        } else {
+          showToast('云同步模块未加载', 'error');
+        }
+      });
+
+      // 数据导入（隐藏 file input）
+      const importFileInput = document.getElementById('modalImportFile');
+      document.getElementById('modalImportBtn').addEventListener('click', () => importFileInput.click());
+      importFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (typeof CloudSync !== 'undefined' && CloudSync.importFromFile) {
+          try {
+            const result = await CloudSync.importFromFile(file);
+            if (result && result.success) {
+              showToast('数据导入成功，建议刷新页面以生效', 'success');
+            } else {
+              showToast('导入失败：文件格式不正确', 'error');
+            }
+          } catch (err) {
+            console.error('import error:', err);
+            showToast('导入失败', 'error');
+          }
+        } else {
+          showToast('云同步模块未加载', 'error');
+        }
+        importFileInput.value = '';
+      });
+
+      // 清除数据（带二次确认）
+      document.getElementById('modalClearBtn').addEventListener('click', () => {
+        if (!confirm('确定要清除全部本地数据吗？此操作不可撤销！')) return;
+        if (!confirm('再次确认：情绪记录、聊天历史、番茄记录、日记都将被清空！')) return;
+        const keys = [
+          'studybuddy_emotion_log', 'studybuddy_chat_history', 'studybuddy_study_plans',
+          'studybuddy_achievements', 'studybuddy_task_check', 'studybuddy_care_dismissed',
+          'studybuddy_pomodoro', 'studybuddy_pomodoro_records', 'studybuddy_emotion_diary'
+        ];
+        keys.forEach(k => localStorage.removeItem(k));
+        showToast('本地数据已清除', 'success');
+        setTimeout(() => location.reload(), 1200);
+      });
+
+      // ---------- 周报 ----------
+      let lastReport = null;
+      window.openWeeklyReport = async function () {
+        openModal('weeklyReportModal');
+        const content = document.getElementById('weeklyReportContent');
+        content.textContent = '报告生成中...';
+        try {
+          if (typeof WeeklyReport !== 'undefined') {
+            lastReport = await WeeklyReport.generate();
+            content.innerHTML = (lastReport && lastReport.html) || '<p>暂无足够数据生成报告，多使用几天后再来看看吧～</p>';
+          } else {
+            content.innerHTML = '<p>周报模块未加载</p>';
+          }
+        } catch (e) {
+          console.error('WeeklyReport error:', e);
+          content.innerHTML = '<p>报告生成失败：' + (e.message || e) + '</p>';
+        }
+      };
+
+      document.getElementById('weeklyReportDownloadBtn').addEventListener('click', async () => {
+        if (typeof WeeklyReport === 'undefined' || !WeeklyReport.exportHTML) {
+          showToast('周报模块未加载', 'error');
+          return;
+        }
+        try {
+          await WeeklyReport.exportHTML(lastReport);
+          showToast('报告已下载', 'success');
+        } catch (e) {
+          showToast('下载失败', 'error');
+          console.error(e);
+        }
+      });
+
+      // ---------- 情绪日记 ----------
+      let diaryMood = 0;
+      const stars = document.querySelectorAll('#diaryStars .diary-star');
+      const diaryTextInput = document.getElementById('diaryTextInput');
+      const diaryList = document.getElementById('diaryList');
+
+      function setDiaryMood(n) {
+        diaryMood = n;
+        stars.forEach(s => {
+          s.classList.toggle('active', parseInt(s.dataset.star, 10) <= n);
+        });
+      }
+      stars.forEach(s => {
+        s.addEventListener('click', () => setDiaryMood(parseInt(s.dataset.star, 10)));
+        s.addEventListener('mouseenter', () => {
+          const n = parseInt(s.dataset.star, 10);
+          stars.forEach(ss => ss.classList.toggle('active', parseInt(ss.dataset.star, 10) <= n));
+        });
+      });
+      document.getElementById('diaryStars').addEventListener('mouseleave', () => setDiaryMood(diaryMood));
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, ch => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+      }
+
+      function renderDiaryList() {
+        if (typeof EmotionDiary === 'undefined') {
+          diaryList.innerHTML = '<div class="diary-empty">日记模块未加载</div>';
+          return;
+        }
+        const entries = EmotionDiary.getEntries(30);
+        if (!entries || entries.length === 0) {
+          diaryList.innerHTML = '<div class="diary-empty">还没有日记记录，开始写下第一篇吧～</div>';
+          return;
+        }
+        const moodLabels = { 1: '😢', 2: '😟', 3: '😐', 4: '😊', 5: '😄' };
+        diaryList.innerHTML = entries.map(e => `
+          <div class="diary-item">
+            <div class="diary-item-header">
+              <span>${e.date} · ${moodLabels[e.mood] || '😐'}</span>
+              <span class="diary-item-stars">${'★'.repeat(e.mood)}${'☆'.repeat(5 - e.mood)} <button class="diary-item-del" data-id="${e.id}">删除</button></span>
+            </div>
+            <div class="diary-item-text">${escapeHtml(e.text)}</div>
+          </div>
+        `).join('');
+        diaryList.querySelectorAll('.diary-item-del').forEach(btn => {
+          btn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const id = parseInt(btn.dataset.id, 10);
+            EmotionDiary.deleteEntry(id);
+            showToast('已删除该日记', 'success');
+            renderDiaryList();
+          });
+        });
+      }
+
+      window.openEmotionDiary = function () {
+        setDiaryMood(0);
+        diaryTextInput.value = '';
+        renderDiaryList();
+        openModal('emotionDiaryModal');
+      };
+
+      document.getElementById('diarySaveBtn').addEventListener('click', () => {
+        const text = (diaryTextInput.value || '').trim();
+        if (!text) { showToast('请先写点内容再保存', 'warning'); return; }
+        if (diaryMood === 0) { showToast('请选择心情评分（1-5 星）', 'warning'); return; }
+        const emotion = (appState.currentEmotion && appState.currentEmotion.emotion) || 'neutral';
+        EmotionDiary.addEntry(text, emotion, diaryMood);
+        showToast('日记已保存', 'success');
+        diaryTextInput.value = '';
+        setDiaryMood(0);
+        renderDiaryList();
+      });
+
+      // 绑定情绪趋势页面的入口按钮（修改4）
+      const wrBtn = document.getElementById('weeklyReportBtn');
+      if (wrBtn) wrBtn.addEventListener('click', () => window.openWeeklyReport());
+      const edBtn = document.getElementById('emotionDiaryBtn');
+      if (edBtn) edBtn.addEventListener('click', () => window.openEmotionDiary());
+    })();
 
     // ========== 初始化 ==========
     (async function init() {

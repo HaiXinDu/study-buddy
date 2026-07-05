@@ -2,7 +2,7 @@
 // 缓存策略: Cache First（优先缓存，回退网络）
 
 // 缓存版本名称
-const CACHE_NAME = 'studybuddy-v7';
+const CACHE_NAME = 'studybuddy-v8';
 
 // 需要预缓存的文件列表
 const PRECACHE_FILES = [
@@ -17,6 +17,10 @@ const PRECACHE_FILES = [
   './ai-engine/achievement.js',
   './ai-engine/proactive-care.js',
   './ai-engine/mood-card.js',
+  './ai-engine/doubao-ai.js',
+  './ai-engine/cloud-sync.js',
+  './ai-engine/weekly-report.js',
+  './ai-engine/emotion-diary.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4'
 ];
 
