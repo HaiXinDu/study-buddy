@@ -174,7 +174,7 @@ const MoodCard = {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.fillText('学伴小管家', W / 2, H - 28);
 
-    console.log('[MoodCard] 已生成求助资源卡片（crisis）');
+    // console.log('[MoodCard] 已生成求助资源卡片（crisis）');
     return canvas;
   },
 
@@ -368,7 +368,7 @@ const MoodCard = {
           URL.revokeObjectURL(url);
         }, 100);
 
-        console.log('[MoodCard] 卡片已下载:', filename);
+        // console.log('[MoodCard] 卡片已下载:', filename);
       }, 'image/png');
     } catch (e) {
       console.error('[MoodCard] 下载失败:', e);
@@ -393,7 +393,7 @@ const MoodCard = {
 
     // 检查是否支持 Web Share API（需在 HTTPS 或 localhost 下）
     if (!navigator.share || !navigator.canShare) {
-      console.log('[MoodCard] Web Share API 不可用，回退为下载');
+      // console.log('[MoodCard] Web Share API 不可用，回退为下载');
       this.download(canvas);
       return;
     }
@@ -428,7 +428,7 @@ const MoodCard = {
     } catch (e) {
       // 用户取消分享或发生错误，回退为下载
       if (e.name === 'AbortError') {
-        console.log('[MoodCard] 用户取消分享');
+        // console.log('[MoodCard] 用户取消分享');
       } else {
         console.warn('[MoodCard] 分享失败，回退为下载:', e.message);
         this.download(canvas);

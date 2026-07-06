@@ -115,7 +115,7 @@ const AchievementSystem = {
       const saved = JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
       this._unlocked = saved.unlocked || {};
       this._progress = saved.progress || {};
-      console.log('[AchievementSystem] 初始化完成，已解锁:', Object.keys(this._unlocked).length, '个成就');
+      // console.log('[AchievementSystem] 初始化完成，已解锁:', Object.keys(this._unlocked).length, '个成就');
     } catch (e) {
       console.warn('[AchievementSystem] 数据加载失败，使用空数据', e);
       this._unlocked = {};
@@ -127,10 +127,14 @@ const AchievementSystem = {
    * 保存数据到 localStorage
    */
   _save() {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-      unlocked: this._unlocked,
-      progress: this._progress
-    }));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+        unlocked: this._unlocked,
+        progress: this._progress
+      }));
+    } catch (e) {
+      console.warn('[Achievement] 保存失败:', e);
+    }
   },
 
   // ========== 核心：检查 & 解锁 ==========
@@ -306,7 +310,7 @@ const AchievementSystem = {
     this._unlocked[id] = Date.now();
     this._save();
 
-    console.log('[AchievementSystem] 解锁成就:', achievement.name);
+    // console.log('[AchievementSystem] 解锁成就:', achievement.name);
 
     // 返回通知对象
     return {
@@ -432,7 +436,7 @@ const AchievementSystem = {
     this._unlocked = {};
     this._progress = {};
     localStorage.removeItem(this.STORAGE_KEY);
-    console.log('[AchievementSystem] 所有成就已重置');
+    // console.log('[AchievementSystem] 所有成就已重置');
   },
 
   // ========== 工具方法 ==========

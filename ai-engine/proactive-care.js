@@ -25,7 +25,7 @@ const ProactiveCare = {
     try {
       const saved = JSON.parse(localStorage.getItem(this.DISMISSED_KEY)) || {};
       this._dismissed = saved.dismissed || {};
-      console.log('[ProactiveCare] 初始化完成，已关闭:', Object.keys(this._dismissed).length, '条关怀');
+      // console.log('[ProactiveCare] 初始化完成，已关闭:', Object.keys(this._dismissed).length, '条关怀');
     } catch (e) {
       console.warn('[ProactiveCare] 数据加载失败', e);
       this._dismissed = {};
@@ -36,9 +36,13 @@ const ProactiveCare = {
    * 保存数据到 localStorage
    */
   _save() {
-    localStorage.setItem(this.DISMISSED_KEY, JSON.stringify({
-      dismissed: this._dismissed
-    }));
+    try {
+      localStorage.setItem(this.DISMISSED_KEY, JSON.stringify({
+        dismissed: this._dismissed
+      }));
+    } catch (e) {
+      console.warn('[ProactiveCare] 保存失败:', e);
+    }
   },
 
   /**
@@ -333,7 +337,7 @@ const ProactiveCare = {
   dismiss(id) {
     this._dismissed[id] = true;
     this._save();
-    console.log('[ProactiveCare] 关闭关怀:', id);
+    // console.log('[ProactiveCare] 关闭关怀:', id);
   },
 
   /**

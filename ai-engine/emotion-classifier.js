@@ -35,7 +35,7 @@ class EmotionClassifier {
       if (wordResp.ok) {
         const wordData = await wordResp.json();
         this.wordSet = new Set(wordData.words);
-        console.log('[EmotionClassifier] 通用词表加载成功:', wordData.word_count, '个词');
+        // console.log('[EmotionClassifier] 通用词表加载成功:', wordData.word_count, '个词');
       }
     } catch (e) {
       console.warn('[EmotionClassifier] 词表加载失败，使用基本分词');
@@ -54,11 +54,11 @@ class EmotionClassifier {
       this.model.vocab.forEach(w => this.wordSet.add(w));
 
       this.loaded = true;
-      console.log('[EmotionClassifier] 模型加载成功', {
-        vocabSize: this.model.vocab.length,
-        classes: this.model.classes,
-        totalWords: this.wordSet.size
-      });
+      // console.log('[EmotionClassifier] 模型加载成功', {
+        // vocabSize: this.model.vocab.length,
+        // classes: this.model.classes,
+        // totalWords: this.wordSet.size
+      // });
       return true;
     } catch (error) {
       console.error('[EmotionClassifier] 模型加载失败:', error);
@@ -392,7 +392,7 @@ async function initEmotionClassifier() {
           if (e.data.type === 'init_ok') {
             worker.removeEventListener('message', handler);
             window.__emotionWorker = worker;
-            console.log('[Worker] 情绪识别 Worker 初始化成功');
+            // console.log('[Worker] 情绪识别 Worker 初始化成功');
             resolve();
           } else if (e.data.type === 'error') {
             worker.removeEventListener('message', handler);

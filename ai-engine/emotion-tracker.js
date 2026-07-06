@@ -54,7 +54,11 @@ const EmotionTracker = {
       records.shift();
     }
 
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(records));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(records));
+    } catch (e) {
+      console.warn('[EmotionTracker] 保存失败:', e);
+    }
     return newRecord;
   },
 
@@ -170,7 +174,7 @@ const EmotionTracker = {
     const records = this.getRecentRecords(days);
     if (records.length === 0) return null;
 
-    const scoreMap = { crisis: 0, depressed: 25, anxious: 40, stressed: 40, angry: 3, neutral: 60, positive: 80, happy: 100 };
+    const scoreMap = { crisis: 0, depressed: 25, anxious: 40, stressed: 40, angry: 30, neutral: 60, positive: 80, happy: 100 };
     const recentWeight = records.slice(-3).length > 0 ? 1.5 : 1;
 
     let totalScore = 0;
