@@ -1366,7 +1366,7 @@
 
     .achievement-grid {
       display: none;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       margin-top: 14px;
       animation: fadeIn 0.3s ease;
@@ -1386,6 +1386,19 @@
       text-align: center;
       transition: var(--transition);
       border: 2px solid transparent;
+      overflow: hidden;
+    }
+
+    .achievement-badge .badge-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
     }
 
     .achievement-badge.unlocked {
@@ -1953,19 +1966,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=20"></script>
-  <script src="ai-engine/reply-templates.js?v=20"></script>
-  <script src="ai-engine/emotion-classifier.js?v=20"></script>
-  <script src="ai-engine/study-planner.js?v=20"></script>
-  <script src="ai-engine/emotion-tracker.js?v=20"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=21"></script>
+  <script src="ai-engine/reply-templates.js?v=21"></script>
+  <script src="ai-engine/emotion-classifier.js?v=21"></script>
+  <script src="ai-engine/study-planner.js?v=21"></script>
+  <script src="ai-engine/emotion-tracker.js?v=21"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=20"></script>
-  <script src="ai-engine/proactive-care.js?v=20"></script>
-  <script src="ai-engine/mood-card.js?v=20"></script>
+  <script src="ai-engine/achievement.js?v=21"></script>
+  <script src="ai-engine/proactive-care.js?v=21"></script>
+  <script src="ai-engine/mood-card.js?v=21"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=20"></script>
-  <script src="ai-engine/word-analyzer.js?v=20"></script>
-  <script src="ai-engine/weekly-report.js?v=20"></script>
+  <script src="ai-engine/study-advisor.js?v=21"></script>
+  <script src="ai-engine/word-analyzer.js?v=21"></script>
+  <script src="ai-engine/weekly-report.js?v=21"></script>
 
   <script>
     // ================================================================
@@ -3830,6 +3843,7 @@
   </script>
 </body>
 </html>
+
 
 
 

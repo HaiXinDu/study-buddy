@@ -74,8 +74,8 @@ const AchievementSystem = {
       id: 'comeback',
       name: '心灵勇士',
       icon: '💪',
-      description: '连续低落后情绪好转（从depressed/crisis变为happy/positive）',
-      condition: '之前连续记录为 depressed/crisis，当前记录为 happy/positive 时解锁'
+      description: '连续低落后情绪好转',
+      condition: '之前连续记录为低落/危机，当前记录为愉快/积极时解锁'
     },
     {
       id: 'data_export',
