@@ -1380,25 +1380,44 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 6px;
+      justify-content: flex-start;
+      padding: 10px 6px;
       border-radius: var(--radius);
       background: var(--surface-muted);
       text-align: center;
       transition: var(--transition);
       border: 2px solid transparent;
       overflow: hidden;
+      height: 110px;
+      box-sizing: border-box;
     }
 
-    .achievement-badge .badge-desc {
+    .achievement-badge .achievement-icon {
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+    }
+
+    .achievement-badge .achievement-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+
+    .achievement-badge .achievement-desc {
       font-size: 11px;
       color: var(--text-muted);
       line-height: 1.3;
-      margin-top: 4px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       word-break: break-word;
+      flex: 1;
     }
 
     .achievement-badge.unlocked {
@@ -1966,19 +1985,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=21"></script>
-  <script src="ai-engine/reply-templates.js?v=21"></script>
-  <script src="ai-engine/emotion-classifier.js?v=21"></script>
-  <script src="ai-engine/study-planner.js?v=21"></script>
-  <script src="ai-engine/emotion-tracker.js?v=21"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=22"></script>
+  <script src="ai-engine/reply-templates.js?v=22"></script>
+  <script src="ai-engine/emotion-classifier.js?v=22"></script>
+  <script src="ai-engine/study-planner.js?v=22"></script>
+  <script src="ai-engine/emotion-tracker.js?v=22"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=21"></script>
-  <script src="ai-engine/proactive-care.js?v=21"></script>
-  <script src="ai-engine/mood-card.js?v=21"></script>
+  <script src="ai-engine/achievement.js?v=22"></script>
+  <script src="ai-engine/proactive-care.js?v=22"></script>
+  <script src="ai-engine/mood-card.js?v=22"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=21"></script>
-  <script src="ai-engine/word-analyzer.js?v=21"></script>
-  <script src="ai-engine/weekly-report.js?v=21"></script>
+  <script src="ai-engine/study-advisor.js?v=22"></script>
+  <script src="ai-engine/word-analyzer.js?v=22"></script>
+  <script src="ai-engine/weekly-report.js?v=22"></script>
 
   <script>
     // ================================================================
@@ -3843,6 +3862,7 @@
   </script>
 </body>
 </html>
+
 
 
 
