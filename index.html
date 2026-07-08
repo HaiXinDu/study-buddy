@@ -1635,10 +1635,6 @@
     <div class="header-right">
       <!-- 优化3: 深色模式切换 -->
       <button class="dark-mode-toggle" id="darkModeToggle" title="切换深色模式">☀️</button>
-      <div class="model-badge">
-        <span class="dot"></span>
-        <span id="modelStatus">模型加载中...</span>
-      </div>
       <nav class="tab-nav">
         <button class="tab-btn active" data-tab="home">
           <span class="tab-icon">🏠</span>
@@ -2068,19 +2064,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=24"></script>
-  <script src="ai-engine/reply-templates.js?v=24"></script>
-  <script src="ai-engine/emotion-classifier.js?v=24"></script>
-  <script src="ai-engine/study-planner.js?v=24"></script>
-  <script src="ai-engine/emotion-tracker.js?v=24"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=25"></script>
+  <script src="ai-engine/reply-templates.js?v=25"></script>
+  <script src="ai-engine/emotion-classifier.js?v=25"></script>
+  <script src="ai-engine/study-planner.js?v=25"></script>
+  <script src="ai-engine/emotion-tracker.js?v=25"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=24"></script>
-  <script src="ai-engine/proactive-care.js?v=24"></script>
-  <script src="ai-engine/mood-card.js?v=24"></script>
+  <script src="ai-engine/achievement.js?v=25"></script>
+  <script src="ai-engine/proactive-care.js?v=25"></script>
+  <script src="ai-engine/mood-card.js?v=25"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=24"></script>
-  <script src="ai-engine/word-analyzer.js?v=24"></script>
-  <script src="ai-engine/weekly-report.js?v=24"></script>
+  <script src="ai-engine/study-advisor.js?v=25"></script>
+  <script src="ai-engine/word-analyzer.js?v=25"></script>
+  <script src="ai-engine/weekly-report.js?v=25"></script>
 
   <script>
     // ================================================================
@@ -3732,10 +3728,8 @@
       // 初始化情绪分类器
       try {
         await initEmotionClassifier();
-        document.getElementById('modelStatus').textContent = '模型就绪';
       } catch (e) {
         console.warn('分类器加载失败，使用词典模式');
-        document.getElementById('modelStatus').textContent = '词典模式';
       }
 
       // 刷新情绪图表
@@ -3948,6 +3942,7 @@
   </script>
 </body>
 </html>
+
 
 
 
