@@ -1240,6 +1240,9 @@
     }
 
     /* ========== 响应式 ========== */
+    /* 全局防溢出 */
+    * { box-sizing: border-box; }
+
     @media (max-width: 900px) {
       .chat-layout { flex-direction: column; }
       .chat-sidebar { width: 100%; }
@@ -1259,6 +1262,58 @@
       .plan-overview { grid-template-columns: 1fr; }
       .achievement-grid { grid-template-columns: repeat(2, 1fr); }
       .chat-sidebar { width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+      }
+      .header { padding: 0 8px; height: 56px; }
+      .logo { width: 32px; height: 32px; font-size: 16px; }
+      .header-title { font-size: 15px; }
+      .main-content { padding: 8px; padding-bottom: 70px; }
+      .tab-nav { gap: 0; padding: 0 4px; }
+      .tab-btn { padding: 6px 4px; font-size: 11px; }
+      .tab-btn .tab-icon { font-size: 16px; }
+      .card { padding: 10px !important; border-radius: 10px; }
+      /* 仪表盘统计卡片 */
+      .dashboard-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+      /* 聊天 */
+      .messages-container { padding: 8px; }
+      .message { max-width: 92%; }
+      .msg-bubble { font-size: 14px; padding: 8px 10px; }
+      .chat-input-area { padding: 8px; gap: 6px; }
+      .chat-input { font-size: 14px; }
+      /* 学习规划 */
+      .study-input { font-size: 14px; }
+      .daily-plan-table { font-size: 12px; }
+      .daily-plan-table th, .daily-plan-table td { padding: 6px 4px; }
+      /* 番茄计时器 */
+      .pomodoro-timer { width: 160px !important; height: 160px !important; }
+      .pomodoro-timer .timer-text { font-size: 32px !important; }
+      /* 呼吸练习 */
+      .breathing-circle { width: 120px !important; height: 120px !important; }
+      /* 情绪趋势图表 */
+      canvas { max-width: 100%; height: auto !important; }
+      /* 快捷操作 */
+      .quick-action-btn { font-size: 12px; padding: 8px 6px; }
+      /* 成就徽章 */
+      .achievement-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .achievement-badge { height: 100px; padding: 8px 4px; }
+      .achievement-badge .achievement-icon { font-size: 24px; }
+      .achievement-badge .achievement-name { font-size: 12px; }
+      .achievement-badge .achievement-desc { font-size: 10px; }
+      /* 周报模态框 */
+      .report-modal { width: 95vw !important; max-width: 95vw !important; padding: 16px; }
+      .report-modal table { font-size: 12px; }
+      /* 日记 */
+      .journal-input { font-size: 14px; }
+      /* 热力图 */
+      .heatmap-cell { width: 20px !important; height: 20px !important; }
+      /* 关怀横幅 */
+      .care-banner { padding: 10px 12px; font-size: 13px; }
+      .care-banner-icon { font-size: 22px; }
     }
 
     /* ========== AI 主动关怀横幅 ========== */
@@ -1646,7 +1701,7 @@
 
     <!-- ==================== Tab 0: 首页仪表盘 ==================== -->
     <section class="tab-panel active" id="panelHome">
-      <div style="max-width:680px;margin:0 auto;">
+      <div style="max-width:680px;margin:0 auto;width:100%;">
         <!-- 问候语 -->
         <div class="card" style="text-align:center;padding:24px 16px;margin-bottom:12px;background:linear-gradient(135deg,rgba(75,63,227,0.06),rgba(34,165,247,0.06));">
           <div id="dashGreeting" style="font-size:20px;font-weight:700;color:var(--brand);margin-bottom:4px;">你好！</div>
@@ -1654,7 +1709,7 @@
         </div>
 
         <!-- 今日概览卡片 -->
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;">
+        <div class="dashboard-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;">
           <div class="card" style="padding:14px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">情绪健康评分</div>
             <div id="dashHealthScore" style="font-size:28px;font-weight:700;color:var(--brand);">—</div>
@@ -1690,7 +1745,7 @@
         <!-- 快捷操作 -->
         <div class="card" style="padding:14px;margin-bottom:12px;">
           <div style="font-size:14px;font-weight:600;margin-bottom:10px;">⚡ 快捷操作</div>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+          <div class="dashboard-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
             <button class="quick-action-btn" onclick="switchToTab('chat')" style="text-align:left;padding:10px;">💬 和AI聊天</button>
             <button class="quick-action-btn" onclick="switchToTab('study')" style="text-align:left;padding:10px;">📖 制定学习计划</button>
             <button class="quick-action-btn" onclick="switchToTab('emotion')" style="text-align:left;padding:10px;">📊 情绪打卡</button>
@@ -1985,19 +2040,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=22"></script>
-  <script src="ai-engine/reply-templates.js?v=22"></script>
-  <script src="ai-engine/emotion-classifier.js?v=22"></script>
-  <script src="ai-engine/study-planner.js?v=22"></script>
-  <script src="ai-engine/emotion-tracker.js?v=22"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=23"></script>
+  <script src="ai-engine/reply-templates.js?v=23"></script>
+  <script src="ai-engine/emotion-classifier.js?v=23"></script>
+  <script src="ai-engine/study-planner.js?v=23"></script>
+  <script src="ai-engine/emotion-tracker.js?v=23"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=22"></script>
-  <script src="ai-engine/proactive-care.js?v=22"></script>
-  <script src="ai-engine/mood-card.js?v=22"></script>
+  <script src="ai-engine/achievement.js?v=23"></script>
+  <script src="ai-engine/proactive-care.js?v=23"></script>
+  <script src="ai-engine/mood-card.js?v=23"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=22"></script>
-  <script src="ai-engine/word-analyzer.js?v=22"></script>
-  <script src="ai-engine/weekly-report.js?v=22"></script>
+  <script src="ai-engine/study-advisor.js?v=23"></script>
+  <script src="ai-engine/word-analyzer.js?v=23"></script>
+  <script src="ai-engine/weekly-report.js?v=23"></script>
 
   <script>
     // ================================================================
@@ -3862,6 +3917,7 @@
   </script>
 </body>
 </html>
+
 
 
 
