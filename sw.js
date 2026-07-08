@@ -2,7 +2,7 @@
 // 缓存策略: Cache First（优先缓存，回退网络）
 
 // 缓存版本名称
-const CACHE_NAME = 'studybuddy-v18';
+const CACHE_NAME = 'studybuddy-v19';
 
 // 需要预缓存的文件列表
 const PRECACHE_FILES = [
@@ -96,6 +96,7 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
 
 
 

@@ -1850,6 +1850,34 @@
             <div id="subjectOverview"></div>
           </div>
         </div>
+
+        <!-- 空状态引导（未生成计划时显示） -->
+        <div id="studyEmptyGuide" class="card" style="margin-top:12px;">
+          <div style="text-align:center;padding:20px 16px;">
+            <div style="font-size:40px;margin-bottom:10px;">📋</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px;">还没有学习计划</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">在上方输入框描述你的考试情况，AI 会帮你生成科学的每日学习计划</div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;text-align:left;">
+              <div style="background:var(--surface-muted);border-radius:10px;padding:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--brand);margin-bottom:4px;">💡 输入示例 1</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">还有10天期末考试，数学和英语需要重点复习</div>
+              </div>
+              <div style="background:var(--surface-muted);border-radius:10px;padding:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--brand);margin-bottom:4px;">💡 输入示例 2</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">下周三中考，语文数学英语物理化学都要复习</div>
+              </div>
+              <div style="background:var(--surface-muted);border-radius:10px;padding:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--brand);margin-bottom:4px;">✨ 功能亮点</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">AI 自动分配每日科目时间，支持任务勾选</div>
+              </div>
+              <div style="background:var(--surface-muted);border-radius:10px;padding:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--brand);margin-bottom:4px;">📊 智能建议</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">根据科目紧迫度和你的效率智能调整时间</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2040,19 +2068,19 @@
   </main>
 
   <!-- ========== 引入 AI Engine 脚本 ========== -->
-  <script src="ai-engine/emotion-dictionary.js?v=23"></script>
-  <script src="ai-engine/reply-templates.js?v=23"></script>
-  <script src="ai-engine/emotion-classifier.js?v=23"></script>
-  <script src="ai-engine/study-planner.js?v=23"></script>
-  <script src="ai-engine/emotion-tracker.js?v=23"></script>
+  <script src="ai-engine/emotion-dictionary.js?v=24"></script>
+  <script src="ai-engine/reply-templates.js?v=24"></script>
+  <script src="ai-engine/emotion-classifier.js?v=24"></script>
+  <script src="ai-engine/study-planner.js?v=24"></script>
+  <script src="ai-engine/emotion-tracker.js?v=24"></script>
   <!-- 新增模块脚本 -->
-  <script src="ai-engine/achievement.js?v=23"></script>
-  <script src="ai-engine/proactive-care.js?v=23"></script>
-  <script src="ai-engine/mood-card.js?v=23"></script>
+  <script src="ai-engine/achievement.js?v=24"></script>
+  <script src="ai-engine/proactive-care.js?v=24"></script>
+  <script src="ai-engine/mood-card.js?v=24"></script>
   <!-- V5 新增模块 -->
-  <script src="ai-engine/study-advisor.js?v=23"></script>
-  <script src="ai-engine/word-analyzer.js?v=23"></script>
-  <script src="ai-engine/weekly-report.js?v=23"></script>
+  <script src="ai-engine/study-advisor.js?v=24"></script>
+  <script src="ai-engine/word-analyzer.js?v=24"></script>
+  <script src="ai-engine/weekly-report.js?v=24"></script>
 
   <script>
     // ================================================================
@@ -2705,6 +2733,9 @@
         const result = StudyPlanner.plan(text);
         renderPlan(result);
         resultDiv.classList.add('show');
+        // 生成计划后隐藏空状态引导
+        const emptyGuide = document.getElementById('studyEmptyGuide');
+        if (emptyGuide) emptyGuide.style.display = 'none';
         showToast('学习计划已生成！');
         // 成就检测：生成学习计划
         if (typeof AchievementSystem !== 'undefined') AchievementSystem.check('study_plan');
@@ -3917,6 +3948,7 @@
   </script>
 </body>
 </html>
+
 
 
 
